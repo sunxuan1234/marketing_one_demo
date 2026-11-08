@@ -1,0 +1,510 @@
+{
+  "lossOrg": {
+    "company": "高新供水",
+    "org": "科学大道网格",
+    "charts": [
+      "C-KPI-02"
+    ],
+    "lossTab": true,
+    "lossCard": false
+  },
+  "meterTabs": [
+    {
+      "key": "quality",
+      "rows": 889,
+      "columns": 15,
+      "bad": false
+    },
+    {
+      "key": "ledger",
+      "rows": 120,
+      "columns": 11,
+      "bad": false
+    },
+    {
+      "key": "swap",
+      "rows": 16,
+      "columns": 10,
+      "bad": false
+    },
+    {
+      "key": "warehouse",
+      "rows": 4,
+      "columns": 5,
+      "bad": false
+    },
+    {
+      "key": "booklet",
+      "rows": 48,
+      "columns": 7,
+      "bad": false
+    },
+    {
+      "key": "evidence",
+      "rows": 4,
+      "columns": 10,
+      "bad": false
+    },
+    {
+      "key": "remote",
+      "rows": 222,
+      "columns": 7,
+      "bad": false
+    }
+  ],
+  "arTabs": [
+    {
+      "key": "bills",
+      "rows": 889,
+      "columns": 11,
+      "bad": false
+    },
+    {
+      "key": "debt",
+      "rows": 10,
+      "columns": 9,
+      "bad": false
+    },
+    {
+      "key": "large",
+      "rows": 0,
+      "columns": 9,
+      "bad": false
+    },
+    {
+      "key": "adjust",
+      "rows": 0,
+      "columns": 10,
+      "bad": false
+    },
+    {
+      "key": "refund",
+      "rows": 0,
+      "columns": 10,
+      "bad": false
+    },
+    {
+      "key": "special",
+      "rows": 0,
+      "columns": 10,
+      "bad": false
+    }
+  ],
+  "qualityRows": 6,
+  "businessAlertRows": 14,
+  "forecast": [
+    {
+      "metric": "water",
+      "rows": 10,
+      "headers": [
+        "期间",
+        "实际售水量(m³)",
+        "计划值(m³，非预测)"
+      ],
+      "width": 1139
+    },
+    {
+      "metric": "charge",
+      "rows": 10,
+      "headers": [
+        "期间",
+        "实际收费率(%)"
+      ],
+      "width": 1139
+    },
+    {
+      "metric": "loss",
+      "rows": 10,
+      "headers": [
+        "期间",
+        "实际产销差率(%)"
+      ],
+      "width": 1139
+    },
+    {
+      "metric": "price",
+      "rows": 10,
+      "headers": [
+        "期间",
+        "实际售水单价(元/m³)"
+      ],
+      "width": 1139
+    }
+  ],
+  "future": {
+    "rows": 0,
+    "inputs": 5,
+    "noFake": true
+  },
+  "historyRestored": {
+    "rows": 10,
+    "width": 1139
+  },
+  "reports": [
+    {
+      "id": "P-RPT-001",
+      "headers": [
+        "异常编号",
+        "水表",
+        "厂家",
+        "表型",
+        "条形码",
+        "异常说明"
+      ],
+      "rows": 0,
+      "downloadEnabled": false,
+      "hasN": false,
+      "bad": false
+    },
+    {
+      "id": "P-RPT-002",
+      "headers": [
+        "事件编号",
+        "统一表卡",
+        "用户名称",
+        "用户地址",
+        "用水性质",
+        "所属组织",
+        "册本",
+        "换表类型",
+        "换表时间",
+        "经营单位",
+        "旧物理表",
+        "新物理表",
+        "厂家",
+        "型号",
+        "口径",
+        "状态"
+      ],
+      "rows": 10,
+      "downloadEnabled": true,
+      "hasN": false,
+      "bad": false
+    },
+    {
+      "id": "P-RPT-003",
+      "headers": [
+        "事件编号",
+        "统一表卡",
+        "用户名称",
+        "用户地址",
+        "用水性质",
+        "所属组织",
+        "册本",
+        "换表类型",
+        "换表时间",
+        "经营单位",
+        "旧物理表",
+        "新物理表",
+        "厂家",
+        "型号",
+        "口径",
+        "状态"
+      ],
+      "rows": 6,
+      "downloadEnabled": true,
+      "hasN": false,
+      "bad": false
+    },
+    {
+      "id": "P-RPT-004",
+      "headers": [
+        "事件编号",
+        "统一表卡",
+        "经营单位",
+        "换表日期",
+        "换表前2期水量序列",
+        "换表后2期水量序列",
+        "均值变化(%)",
+        "单位"
+      ],
+      "rows": 10,
+      "downloadEnabled": true,
+      "hasN": true,
+      "bad": false
+    },
+    {
+      "id": "P-RPT-005",
+      "headers": [
+        "事件编号",
+        "统一表卡",
+        "经营单位",
+        "换表日期",
+        "换表前2期水量序列",
+        "换表后2期水量序列",
+        "均值变化(%)",
+        "单位"
+      ],
+      "rows": 6,
+      "downloadEnabled": true,
+      "hasN": true,
+      "bad": false
+    },
+    {
+      "id": "P-RPT-006",
+      "headers": [
+        "入库日期",
+        "仓库",
+        "水表",
+        "入库类型",
+        "厂家",
+        "数量"
+      ],
+      "rows": 0,
+      "downloadEnabled": false,
+      "hasN": false,
+      "bad": false
+    },
+    {
+      "id": "P-RPT-007",
+      "headers": [
+        "口径",
+        "水表类型",
+        "库存状态",
+        "台数"
+      ],
+      "rows": 6,
+      "downloadEnabled": true,
+      "hasN": false,
+      "bad": false
+    },
+    {
+      "id": "P-RPT-008",
+      "headers": [
+        "仓库",
+        "经营单位",
+        "在库(台)",
+        "周转(台)",
+        "待检(台)",
+        "报废(台)",
+        "合计(台)"
+      ],
+      "rows": 4,
+      "downloadEnabled": true,
+      "hasN": false,
+      "bad": false
+    },
+    {
+      "id": "P-RPT-010",
+      "headers": [
+        "抄表记录",
+        "统一表卡",
+        "经营单位",
+        "组织/线路",
+        "抄表员",
+        "账期",
+        "抄表状态",
+        "抄表方式",
+        "水量(m³)"
+      ],
+      "rows": 8,
+      "downloadEnabled": true,
+      "hasN": false,
+      "bad": false
+    },
+    {
+      "id": "P-RPT-011",
+      "headers": [
+        "异常类型",
+        "异常分类",
+        "数量(条)"
+      ],
+      "rows": 8,
+      "downloadEnabled": true,
+      "hasN": false,
+      "bad": false
+    },
+    {
+      "id": "P-RPT-012",
+      "headers": [
+        "统一表卡",
+        "经营单位",
+        "组织/线路",
+        "连续零水量周期数",
+        "最近账期",
+        "核验状态"
+      ],
+      "rows": 0,
+      "downloadEnabled": false,
+      "hasN": true,
+      "bad": false
+    },
+    {
+      "id": "P-RPT-013",
+      "headers": [
+        "统一表卡",
+        "经营单位",
+        "用水性质",
+        "账期",
+        "本期水量(m³)",
+        "去年同期(m³)",
+        "同比(%)"
+      ],
+      "rows": 48,
+      "downloadEnabled": true,
+      "hasN": false,
+      "bad": false
+    },
+    {
+      "id": "P-RPT-014",
+      "headers": [
+        "统一表卡",
+        "经营单位",
+        "组织/线路",
+        "账期",
+        "本期水量(m³)",
+        "去年同期(m³)",
+        "同比(%)",
+        "异常依据"
+      ],
+      "rows": 0,
+      "downloadEnabled": false,
+      "hasN": false,
+      "bad": false
+    },
+    {
+      "id": "P-RPT-015",
+      "headers": [
+        "变更日期",
+        "统一表卡",
+        "原用水性质",
+        "新用水性质",
+        "经营单位"
+      ],
+      "rows": 0,
+      "downloadEnabled": false,
+      "hasN": false,
+      "bad": false
+    },
+    {
+      "id": "P-RPT-016",
+      "headers": [
+        "经营单位",
+        "组织",
+        "小区",
+        "居民阶梯(户)",
+        "居民非阶梯(户)",
+        "非居民(户)",
+        "特行(户)",
+        "合计(户)"
+      ],
+      "rows": 95,
+      "downloadEnabled": true,
+      "hasN": false,
+      "bad": false
+    },
+    {
+      "id": "P-RPT-017",
+      "headers": [
+        "经营单位",
+        "组织",
+        "册本",
+        "在册户数(户)",
+        "当期有抄表记录户数(户)"
+      ],
+      "rows": 48,
+      "downloadEnabled": true,
+      "hasN": false,
+      "bad": false
+    },
+    {
+      "id": "P-RPT-018",
+      "headers": [
+        "调整日期",
+        "统一表卡",
+        "原册本",
+        "新册本",
+        "调整类型"
+      ],
+      "rows": 0,
+      "downloadEnabled": false,
+      "hasN": false,
+      "bad": false
+    },
+    {
+      "id": "P-RPT-019",
+      "headers": [
+        "入册日期",
+        "统一表卡",
+        "立户日期",
+        "经营单位",
+        "组织",
+        "册本",
+        "用水性质"
+      ],
+      "rows": 0,
+      "downloadEnabled": false,
+      "hasN": false,
+      "bad": false
+    },
+    {
+      "id": "P-RPT-020",
+      "headers": [
+        "用水性质",
+        "新增用户(户)"
+      ],
+      "rows": 2,
+      "downloadEnabled": true,
+      "hasN": false,
+      "bad": false
+    },
+    {
+      "id": "P-RPT-021",
+      "headers": [
+        "用水性质",
+        "注销用户(户)"
+      ],
+      "rows": 0,
+      "downloadEnabled": false,
+      "hasN": false,
+      "bad": false
+    }
+  ],
+  "swapParameter": {
+    "value": 3,
+    "headers": [
+      "事件编号",
+      "统一表卡",
+      "经营单位",
+      "换表日期",
+      "换表前3期水量序列",
+      "换表后3期水量序列",
+      "均值变化(%)",
+      "单位"
+    ]
+  },
+  "config": [
+    {
+      "kind": "plans",
+      "editable": false,
+      "writeButton": false
+    },
+    {
+      "kind": "dictionary",
+      "editable": false,
+      "writeButton": false
+    },
+    {
+      "kind": "identity",
+      "editable": false,
+      "writeButton": false
+    },
+    {
+      "kind": "mapping",
+      "editable": false,
+      "writeButton": false
+    },
+    {
+      "kind": "parameters",
+      "editable": false,
+      "writeButton": false
+    },
+    {
+      "kind": "logs",
+      "editable": false,
+      "writeButton": false
+    }
+  ],
+  "errors": [],
+  "reportHeaderSignatures": 18
+}

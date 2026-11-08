@@ -1,0 +1,142 @@
+{
+  "routes": [
+    {
+      "route": "home",
+      "charts": 3,
+      "heading": "集团经营总览",
+      "danger": [],
+      "removedText": false,
+      "buttons": 0,
+      "overflow": false,
+      "rows": 0,
+      "errors": []
+    },
+    {
+      "route": "kpi",
+      "charts": 1,
+      "heading": "指标管控与下钻",
+      "danger": [],
+      "removedText": false,
+      "buttons": 0,
+      "overflow": false,
+      "rows": 0,
+      "errors": []
+    },
+    {
+      "route": "user",
+      "charts": 0,
+      "heading": "用户查询与分析",
+      "danger": [],
+      "removedText": false,
+      "buttons": 0,
+      "overflow": false,
+      "rows": 96,
+      "errors": []
+    },
+    {
+      "route": "meter",
+      "charts": 2,
+      "heading": "表务与抄表督查",
+      "danger": [],
+      "removedText": false,
+      "buttons": 0,
+      "overflow": false,
+      "rows": 889,
+      "errors": []
+    },
+    {
+      "route": "alert",
+      "charts": 1,
+      "heading": "智能分析与预警",
+      "danger": [],
+      "removedText": false,
+      "buttons": 0,
+      "overflow": false,
+      "rows": 20,
+      "errors": []
+    },
+    {
+      "route": "project",
+      "charts": 0,
+      "heading": "工程与未立户监管",
+      "danger": [],
+      "removedText": false,
+      "buttons": 0,
+      "overflow": false,
+      "rows": 8,
+      "errors": []
+    }
+  ],
+  "tabs": [
+    {
+      "tab": "basic",
+      "rows": 0,
+      "textLength": 173,
+      "banned": false,
+      "charts": []
+    },
+    {
+      "tab": "reading",
+      "rows": 10,
+      "textLength": 723,
+      "banned": false,
+      "charts": []
+    },
+    {
+      "tab": "billing",
+      "rows": 10,
+      "textLength": 829,
+      "banned": false,
+      "charts": []
+    },
+    {
+      "tab": "meter",
+      "rows": 1,
+      "textLength": 90,
+      "banned": false,
+      "charts": []
+    },
+    {
+      "tab": "replacement",
+      "rows": 1,
+      "textLength": 129,
+      "banned": false,
+      "charts": []
+    },
+    {
+      "tab": "installation",
+      "rows": 1,
+      "textLength": 98,
+      "banned": false,
+      "charts": []
+    },
+    {
+      "tab": "remote",
+      "rows": 7,
+      "textLength": 338,
+      "banned": false,
+      "charts": []
+    },
+    {
+      "tab": "adjustment",
+      "rows": 1,
+      "textLength": 52,
+      "banned": false,
+      "charts": []
+    },
+    {
+      "tab": "portrait",
+      "rows": 0,
+      "textLength": 67,
+      "banned": false,
+      "charts": [
+        "C-PROFILE-1"
+      ]
+    }
+  ],
+  "errors": [],
+  "style": {
+    "topbarHeight": 68,
+    "sidebarWidth": 248
+  }
+}

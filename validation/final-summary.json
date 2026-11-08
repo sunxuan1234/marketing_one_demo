@@ -1,0 +1,52 @@
+{
+  "result": "PASS",
+  "date": "2026-11-02",
+  "v2Unchanged": true,
+  "visualStyleFilesUnchanged": [
+    "app.css",
+    "extensions.css",
+    "home-v2.css",
+    "workflows-v2.css",
+    "product.css"
+  ],
+  "modules": 12,
+  "reports": 20,
+  "distinctReportSchemas": 18,
+  "reportsWithSampleDownloads": 12,
+  "profileTabsVerified": 9,
+  "meterTabsVerified": 7,
+  "financialTabsVerified": 6,
+  "queryAndDeepLink": true,
+  "lossHiddenAtOrg": true,
+  "stock": {
+    "month": 95,
+    "ytd": 95,
+    "currentNew": 4
+  },
+  "businessAlerts": 14,
+  "foundationQualityIssues": 6,
+  "layoutChecks": 36,
+  "layoutFailures": 0,
+  "runtimeErrors": 0,
+  "offlineFileProtocolPass": true,
+  "csv": {
+    "v3-chart.csv": {
+      "bytes": 909,
+      "bom": true,
+      "records": 8
+    },
+    "v3-users.csv": {
+      "bytes": 9736,
+      "bom": true,
+      "records": 96
+    }
+  },
+  "png": {
+    "bytes": 86251,
+    "width": 930,
+    "height": 762,
+    "tooltipPreserved": true,
+    "labelsRestored": true
+  },
+  "unconfirmedWriteBranchesDisabled": true
+}

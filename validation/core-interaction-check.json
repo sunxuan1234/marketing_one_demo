@@ -1,0 +1,61 @@
+{
+  "deepLinkClear": true,
+  "staged": true,
+  "query": "高新供水",
+  "lossOrgHidden": true,
+  "localPeriod": {
+    "global": "年内累计",
+    "local": "当月"
+  },
+  "png": {
+    "bytes": 86251,
+    "labelsRestored": true,
+    "formatterPreserved": true,
+    "rawSpanVisible": false,
+    "tooltipText": "高新供水售水量：2.94 万m³计划完成率：101.81 %"
+  },
+  "chartCSV": {
+    "rows": 8,
+    "headers": [
+      "维度/期间",
+      "数值",
+      "单位"
+    ]
+  },
+  "userQuery": {
+    "rows": 1,
+    "month": "2026-09",
+    "company": "高新供水",
+    "noDuplicateGlobal": true,
+    "expectedVolume": 14,
+    "values": [
+      "ZZU0210000000022",
+      "李*磊",
+      "高新供水",
+      "高新1线路",
+      "01册本",
+      "居民阶梯",
+      "138****5683",
+      14,
+      "正常"
+    ]
+  },
+  "userReset": {
+    "rows": 96,
+    "company": "",
+    "period": "年内累计"
+  },
+  "guard": {
+    "sourceFrozen": true,
+    "supplements": 0,
+    "workOrders": 0,
+    "sourceWrite": false
+  },
+  "errors": [],
+  "lossOrgDetail": {
+    "org": "科学大道网格",
+    "lossChart": false,
+    "lossTabVisible": false,
+    "lossCard": false
+  }
+}

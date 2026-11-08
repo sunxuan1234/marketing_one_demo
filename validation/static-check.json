@@ -1,0 +1,19 @@
+{
+  "result": "PASS",
+  "version": "v4",
+  "modules": 14,
+  "reports": 21,
+  "riskComponents": true,
+  "accountSamples": 2000,
+  "monthlyFacts": 92000,
+  "monthEndRegistered": 1993,
+  "ytdRegistered": 1993,
+  "currentNew": 10,
+  "standaloneResources": 22,
+  "sourceFrozen": true,
+  "readOnlyBranches": true,
+  "stockNotSummedAcrossMonths": true,
+  "readingArithmetic": true,
+  "userAnnualVolumeReconciled": true,
+  "v2Unchanged": null
+}

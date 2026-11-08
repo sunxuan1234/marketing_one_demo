@@ -1,0 +1,44 @@
+/* V4 新增样式：用户管理与系统设置、风险提示 */
+.v4-tip{display:flex;gap:10px;align-items:flex-start;margin:0 0 14px;padding:12px 14px;border-radius:10px;background:#f4f8fd;border:1px solid #d9e6f5}
+.v4-tip .muted{margin-top:4px;line-height:1.6}
+.v4-risk{position:relative;display:inline-flex;align-items:center;gap:4px;padding:1px 6px;border-radius:10px;background:#fff4e5;color:#a35a00;font-size:11px;cursor:help;border:1px solid #ffd9a6}
+.v4-risk:hover::after{content:attr(data-tip);position:absolute;left:0;top:130%;z-index:40;min-width:220px;max-width:360px;padding:8px 10px;border-radius:8px;background:#1f2a37;color:#fff;font-size:12px;line-height:1.5;white-space:normal;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+
+/* 智能分析：异常规则管理 */
+.rule-toolbar{display:flex;align-items:center;gap:10px;margin:10px 0;flex-wrap:wrap}
+.rule-toolbar .muted{font-size:11.5px;color:#9AA9B7}
+.rule-table{font-size:12px}
+.rule-table .rule-actions{white-space:nowrap}
+.rule-form label{display:block;margin-bottom:12px;font-size:12.5px;color:#425466}
+.rule-form label .control{display:block;width:100%;margin-top:5px;box-sizing:border-box}
+.rule-form .rule-unit{margin-left:6px;color:#9AA9B7;font-size:12px}
+
+/* 表务证据页：超出 20 行的展开控制 */
+.evidence-more{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-top:1px dashed #EDF3F8}
+.rank-metric-text{font-size:11.5px;color:#5B7A96;padding:2px 6px;border:1px solid #DCE8F3;border-radius:6px;background:#F6FAFD}
+
+/* 指标显示开关与计划值入口 */
+.wb-kpi-button{position:relative}
+.wb-kpi-edit{position:absolute;top:8px;right:32px;width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:12px;color:#317FC2;background:#EAF3FB;cursor:pointer;z-index:2}
+.wb-kpi-edit:hover{background:#D8E9F8}
+.metric-switch-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;padding:6px 0}
+.metric-switch{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid #E3EDF6;border-radius:8px;font-size:13px;cursor:pointer}
+.metric-switch:hover{background:#F6FAFD}
+.inline-field{display:flex;align-items:center;gap:6px;font-size:12px;color:#5B7A96}
+.row-actions{display:inline-flex;gap:4px}
+
+/* 表务：换表/仓库构成弹窗 */
+.compose-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+.compose-block h4{margin:0 0 8px;font-size:13px;color:#1F2A37}
+.compose-row{display:grid;grid-template-columns:1fr 60px auto;align-items:center;gap:8px;font-size:12px;color:#5B7A96;padding:3px 0}
+.compose-row i{height:6px;border-radius:3px;background:#317FC2;display:block}
+.compose-row strong{font-size:11.5px;color:#1F2A37;white-space:nowrap}
+
+/* 下钻页：按业务分类视图（会议 MEET-12，不平铺） */
+.domain-view{display:flex;flex-direction:column;gap:14px;padding:0 16px 16px}
+.domain-block{border:1px solid #E3EDF6;border-radius:12px;padding:12px 14px 6px;background:#FBFDFF}
+.domain-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.domain-head h3{margin:0;font-size:14px;color:#1F2A37}
+.domain-dot{width:8px;height:8px;border-radius:50%;background:#317FC2}
+.domain-head .muted{margin-left:auto;font-size:11px;color:#9AA9B7}
+.domain-grid{grid-template-columns:repeat(auto-fit,minmax(360px,1fr))}

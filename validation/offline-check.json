@@ -1,0 +1,33 @@
+{
+  "protocol": "file:",
+  "online": false,
+  "ready": true,
+  "echarts": "5.5.0",
+  "homeCharts": 3,
+  "resources": [
+    "file:///Users/leezb101/Documents/04-%E5%B7%A5%E4%BD%9C-%E6%B0%B4%E5%8A%A1%E7%A7%91%E6%8A%80/%E8%90%A5%E9%94%80%E4%B8%80%E4%BD%93%E5%8C%96/workbench-v3/assets/app.css?v=20261102-v3.0",
+    "file:///Users/leezb101/Documents/04-%E5%B7%A5%E4%BD%9C-%E6%B0%B4%E5%8A%A1%E7%A7%91%E6%8A%80/%E8%90%A5%E9%94%80%E4%B8%80%E4%BD%93%E5%8C%96/workbench-v3/assets/extensions.css?v=20261102-v3.0",
+    "file:///Users/leezb101/Documents/04-%E5%B7%A5%E4%BD%9C-%E6%B0%B4%E5%8A%A1%E7%A7%91%E6%8A%80/%E8%90%A5%E9%94%80%E4%B8%80%E4%BD%93%E5%8C%96/workbench-v3/assets/home-v2.css?v=20261102-v3.0",
+    "file:///Users/leezb101/Documents/04-%E5%B7%A5%E4%BD%9C-%E6%B0%B4%E5%8A%A1%E7%A7%91%E6%8A%80/%E8%90%A5%E9%94%80%E4%B8%80%E4%BD%93%E5%8C%96/workbench-v3/assets/workflows-v2.css?v=20261102-v3.0",
+    "file:///Users/leezb101/Documents/04-%E5%B7%A5%E4%BD%9C-%E6%B0%B4%E5%8A%A1%E7%A7%91%E6%8A%80/%E8%90%A5%E9%94%80%E4%B8%80%E4%BD%93%E5%8C%96/workbench-v3/assets/product.css?v=20261102-v3.0",
+    "file:///Users/leezb101/Documents/04-%E5%B7%A5%E4%BD%9C-%E6%B0%B4%E5%8A%A1%E7%A7%91%E6%8A%80/%E8%90%A5%E9%94%80%E4%B8%80%E4%BD%93%E5%8C%96/workbench-v3/assets/content-v3.css?v=20261102-v3.0",
+    "file:///Users/leezb101/Documents/04-%E5%B7%A5%E4%BD%9C-%E6%B0%B4%E5%8A%A1%E7%A7%91%E6%8A%80/%E8%90%A5%E9%94%80%E4%B8%80%E4%BD%93%E5%8C%96/workbench-v3/echarts.min.js?v=20261102-v3.0",
+    "file:///Users/leezb101/Documents/04-%E5%B7%A5%E4%BD%9C-%E6%B0%B4%E5%8A%A1%E7%A7%91%E6%8A%80/%E8%90%A5%E9%94%80%E4%B8%80%E4%BD%93%E5%8C%96/workbench-v3/assets/catalog.js?v=20261102-v3.0",
+    "file:///Users/leezb101/Documents/04-%E5%B7%A5%E4%BD%9C-%E6%B0%B4%E5%8A%A1%E7%A7%91%E6%8A%80/%E8%90%A5%E9%94%80%E4%B8%80%E4%BD%93%E5%8C%96/workbench-v3/assets/data.js?v=20261102-v3.0",
+    "file:///Users/leezb101/Documents/04-%E5%B7%A5%E4%BD%9C-%E6%B0%B4%E5%8A%A1%E7%A7%91%E6%8A%80/%E8%90%A5%E9%94%80%E4%B8%80%E4%BD%93%E5%8C%96/workbench-v3/assets/engine.js?v=20261102-v3.0",
+    "file:///Users/leezb101/Documents/04-%E5%B7%A5%E4%BD%9C-%E6%B0%B4%E5%8A%A1%E7%A7%91%E6%8A%80/%E8%90%A5%E9%94%80%E4%B8%80%E4%BD%93%E5%8C%96/workbench-v3/assets/icons.js?v=20261102-v3.0",
+    "file:///Users/leezb101/Documents/04-%E5%B7%A5%E4%BD%9C-%E6%B0%B4%E5%8A%A1%E7%A7%91%E6%8A%80/%E8%90%A5%E9%94%80%E4%B8%80%E4%BD%93%E5%8C%96/workbench-v3/assets/shell.js?v=20261102-v3.0",
+    "file:///Users/leezb101/Documents/04-%E5%B7%A5%E4%BD%9C-%E6%B0%B4%E5%8A%A1%E7%A7%91%E6%8A%80/%E8%90%A5%E9%94%80%E4%B8%80%E4%BD%93%E5%8C%96/workbench-v3/assets/map-data.js?v=20261102-v3.0",
+    "file:///Users/leezb101/Documents/04-%E5%B7%A5%E4%BD%9C-%E6%B0%B4%E5%8A%A1%E7%A7%91%E6%8A%80/%E8%90%A5%E9%94%80%E4%B8%80%E4%BD%93%E5%8C%96/workbench-v3/assets/map.js?v=20261102-v3.0",
+    "file:///Users/leezb101/Documents/04-%E5%B7%A5%E4%BD%9C-%E6%B0%B4%E5%8A%A1%E7%A7%91%E6%8A%80/%E8%90%A5%E9%94%80%E4%B8%80%E4%BD%93%E5%8C%96/workbench-v3/assets/home.js?v=20261102-v3.0",
+    "file:///Users/leezb101/Documents/04-%E5%B7%A5%E4%BD%9C-%E6%B0%B4%E5%8A%A1%E7%A7%91%E6%8A%80/%E8%90%A5%E9%94%80%E4%B8%80%E4%BD%93%E5%8C%96/workbench-v3/assets/workflows.js?v=20261102-v3.0",
+    "file:///Users/leezb101/Documents/04-%E5%B7%A5%E4%BD%9C-%E6%B0%B4%E5%8A%A1%E7%A7%91%E6%8A%80/%E8%90%A5%E9%94%80%E4%B8%80%E4%BD%93%E5%8C%96/workbench-v3/assets/views.js?v=20261102-v3.0",
+    "file:///Users/leezb101/Documents/04-%E5%B7%A5%E4%BD%9C-%E6%B0%B4%E5%8A%A1%E7%A7%91%E6%8A%80/%E8%90%A5%E9%94%80%E4%B8%80%E4%BD%93%E5%8C%96/workbench-v3/assets/business.js?v=20261102-v3.0",
+    "file:///Users/leezb101/Documents/04-%E5%B7%A5%E4%BD%9C-%E6%B0%B4%E5%8A%A1%E7%A7%91%E6%8A%80/%E8%90%A5%E9%94%80%E4%B8%80%E4%BD%93%E5%8C%96/workbench-v3/assets/app.js?v=20261102-v3.0",
+    "file:///Users/leezb101/Documents/04-%E5%B7%A5%E4%BD%9C-%E6%B0%B4%E5%8A%A1%E7%A7%91%E6%8A%80/%E8%90%A5%E9%94%80%E4%B8%80%E4%BD%93%E5%8C%96/workbench-v3/assets/home-v2.css"
+  ],
+  "userRows": 96,
+  "reportRows": 20,
+  "external": [],
+  "pass": true
+}
