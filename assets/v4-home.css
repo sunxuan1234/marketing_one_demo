@@ -114,7 +114,7 @@ html[data-nav-collapsed] .home-hero{height:min(800px,calc(100vh - 250px))}
 .drill-special .tabs button.active{background:#317FC2;color:#fff;border-color:#317FC2}
 .special-kpis{margin-bottom:10px}
 .special-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:8px}
-.special-block{background:#FBFDFF;border:1px solid #E9F1F8;border-radius:10px;padding:10px 12px;margin-top:8px}
+.special-block{min-width:0;max-width:100%;background:#FBFDFF;border:1px solid #E9F1F8;border-radius:10px;padding:10px 12px;margin-top:8px;overflow:hidden}
 .special-block h4{margin:0 0 8px;font-size:12.5px;color:#1F2A37}
 .special-block .data-table{font-size:12px}
 .special-block .kv-grid{display:grid;grid-template-columns:1fr;gap:6px}
@@ -142,3 +142,6 @@ html[data-nav-collapsed] .home-hero{height:min(800px,calc(100vh - 250px))}
   .home-map-canvas.is-3d .home-echarts{transform:none!important;filter:none!important}
   .home-map-toolbar .hmt-render{display:none}
 }
+
+/* V4.2 narrow-screen containment */
+@media(max-width:640px){.topbar-main{gap:5px;padding-right:8px}.topbar-actions{gap:2px;min-width:0}.top-search{width:40px;min-width:40px;padding:0;justify-content:center}.top-search span,.top-search kbd{display:none}.drill-special,.drill-special .card-body,.special-grid{min-width:0;max-width:100%}.drill-special .card-head{flex-wrap:wrap}.drill-special .card-head-actions{min-width:0;max-width:100%}.special-block .table-scroll{max-width:100%;overflow-x:auto}}

@@ -5,6 +5,10 @@ for(const f of ['catalog','data','organization','engine'])vm.runInContext(fs.rea
 const {WB_DATA:D,WB_ORG:O,WB:W}=box,E=W.engine;
 W.shell={toast(){},closeLayers(){}};box.WBApp={navigate(_id,params){Object.assign(W.state,params);}};
 for(const u of D.users)assert(O.nodes.has(O.userNodes.get(u.id)));
+const validCode=code=>{if(!/^ZZU\d{13}$/.test(code))return false;const digits=code.slice(3);let total=0;for(let i=digits.length-1;i>=0;i--){let n=+digits[i];if((digits.length-1-i)%2){n*=2;if(n>9)n-=9;}total+=n;}return total%10===0;};
+assert(validCode('ZZU0200000000014'));assert(!validCode('ZZU0200000000015'));
+assert(D.users.every(u=>validCode(u.unified_code)),'所有样例统一码必须通过Luhn校验');
+assert.equal(new Set(D.users.map(u=>u.unified_code)).size,D.users.length);
 const depths=new Map();for(const c of D.companies){const leaves=[...O.nodes.values()].filter(n=>!n.children.length&&O.within(n.id,'c'+c.id));depths.set(c.id,[...new Set(leaves.map(n=>n.path.length-1))]);}
 assert.deepEqual(depths.get(1),[5]);for(const id of [2,3,4])assert.deepEqual(depths.get(id),[3]);
 const all=E.aggregate(E.filterFacts({period:'当月',month:'2026-10'}));

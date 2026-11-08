@@ -12,7 +12,7 @@ window.WB=window.WB||{};
  E.esc=esc;E.sum=sum;E.div=div;E.round=round;E.hash=D.hash;
  E.fmt=(v,d=0)=>v==null||!Number.isFinite(+v)?'—':(+v).toLocaleString('zh-CN',{minimumFractionDigits:d,maximumFractionDigits:d});
  E.periodLabel=f=>`${f.period||'年内累计'} · ${f.caliber||'业务账期'}${f.period==='自定义'?` · ${f.start}—${f.end}`:f.period==='当月'?` · ${f.month}`:''}`;
- E.filterLabel=(f=WB.state)=>[E.periodLabel(f),f.company||'集团',f.admin?D.adminRegions.find(r=>r.code===f.admin)?.name:'',f.org,f.nature,f.industry,f.caliberMm,f.meterType,'合成样例'].filter(Boolean).join('｜');
+ E.filterLabel=(f=WB.state)=>[E.periodLabel(f),window.WB_ORG?WB_ORG.resolve(f).path.map(id=>WB_ORG.nodes.get(id).name).join(' / '):f.company||'集团',f.admin?D.adminRegions.find(r=>r.code===f.admin)?.name:'',f.org,f.nature,f.industry,f.caliberMm,f.meterType,'合成样例'].filter(Boolean).join('｜');
  function periods(f){let end=f.month||f.end||'2026-10',year=+end.slice(0,4);if(f.period==='当月')return[end];if(f.period==='近5年')return D.periods.filter(p=>p>=`${year-4}-01`&&p<=end);if(f.period==='近10年')return D.periods.filter(p=>p>=`${year-9}-01`&&p<=end);if(f.period==='自定义')return D.periods.filter(p=>p>=(f.start||'2026-01')&&p<=end);return D.periods.filter(p=>p>=`${year}-01`&&p<=end);}
  E.periods=periods;
  const FILTER_KEYS=['period','caliber','month','end','start','year','company','admin','functional','org','nature','industry','caliberMm','meterType','team','line','orgNodeId'];
