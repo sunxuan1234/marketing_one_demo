@@ -11,6 +11,7 @@
  const number=(value,digits=2)=>value==null||!Number.isFinite(Number(value))?'—':fmt(Number(value),digits);
  const userById=new Map(list(D.users).map(user=>[user.id,user]));
  const billUser=bill=>userById.get(bill.userId)||{};
+ const readingByAccountPeriod=new Map(list(D.readings).map(r=>[r.userId+'|'+r.period,r]));
 
  V.card=(title,value,unit,note,icon='chart',tone='')=>`<article class="card kpi-card"><div class="kpi-top"><span class="kpi-icon ${tone}">${S()?.icon(icon)||''}</span><span>${esc(title)}</span></div><div class="kpi-main"><span class="kpi-value numeric">${typeof value==='number'?fmt(value,2):value}</span><span class="kpi-unit">${esc(unit)}</span></div><div class="kpi-foot"><span>${esc(note)}</span></div></article>`;
  V.cards=totals=>`<section class="kpi-grid">${V.card('售水量',fmt(totals.sold_vol/10000,1),'万吨','当前范围累计售水量','water')}${V.card('收费率',fmt(totals.charge_rate_pct),'%','实收本金 / 应收本金','wallet','green')}${V.card('产销差率',fmt(totals.loss_rate_pct),'%','供售水量综合差率','flow','orange')}${V.card('售水均价',fmt(totals.avg_price_yuan,3),'元/m³','综合售水单价','meter')}${V.card('注册用户',fmt(totals.registered_count),'户','当前范围期末存量','users','green')}</section>`;
@@ -21,7 +22,7 @@
  function metricRows(ctx){return E.group(ctx.data,ctx.state.dimension,ctx.filters).map(row=>[row.name,row.sold_vol,row.charge_rate_pct,row.loss_rate_pct]);}
  function setupCommonChart(id,title,subtitle,extra={}){return {id,title,subtitle,dimension:'company',granularity:true,headers:['期间','售水量(m³)','计划值(m³，非预测)'],getOption:ctx=>E.lineOption({data:E.trend(ctx.data,ctx.filters,ctx.state.granularity),metrics:['sold_vol','plan_vol'],area:true}),getRows:ctx=>E.trend(ctx.data,ctx.filters,ctx.state.granularity).map(row=>[row.name,row.sold_vol,row.plan_vol]),...extra};}
  function dimensionFilter(row,f=WB.state){
-  return (!f.company||row.company===f.company)&&(!f.admin||row.adminCode===f.admin)&&(!f.functional||list(row.functionalZones).includes(f.functional))&&(!f.org||row.org===f.org)&&(!f.nature||row.nature===f.nature)&&(!f.industry||row.industry===f.industry)&&(!f.caliberMm||row.caliber===f.caliberMm)&&(!f.meterType||row.meterType===f.meterType);
+  return (!window.WB_ORG||WB_ORG.allows(row,f))&&(!f.company||row.company===f.company)&&(!f.admin||row.adminCode===f.admin)&&(!f.functional||list(row.functionalZones).includes(f.functional))&&(!f.org||row.org===f.org)&&(!f.nature||row.nature===f.nature)&&(!f.industry||row.industry===f.industry)&&(!f.caliberMm||row.caliber===f.caliberMm)&&(!f.meterType||row.meterType===f.meterType);
  }
  function filtered(rows,f=WB.state,periodKey='period'){
   const periods=new Set(E.periods(f));
@@ -257,7 +258,7 @@
  V.renderForecast=()=>{
   let metric='water',horizon='下月',chartDef;
   const factors=[];
-  const html=`<div class="notice">售水量支持下月、季度、年度查询；其余指标为候选项，当前暂无未来预测数据。${risk('L2','预测模型与手工因子未建，未来结果仅演示形态')}</div><div class="card metric-config"><div class="segmented" id="forecastMetrics" aria-label="预测指标">${Object.entries(forecastMetrics).map(([key,item])=>`<button type="button" data-forecast-metric="${key}" class="${key==='water'?'active':''}" aria-pressed="${key==='water'}">${item.label}${item.candidate?'（候选）':''}</button>`).join('')}</div><div class="tabs" id="forecastTabs"><button type="button" class="active" data-forecast-tab="history">指标趋势</button><button type="button" data-forecast-tab="future">指标预测</button></div></div><section id="forecastHistory"><div id="forecastChart"></div><section class="card"><div class="card-head"><span class="card-title-bar"></span><div><h2 class="card-title">历史数据</h2><div class="card-subtitle">实际与计划分列，计划值不作为预测结果</div></div><button type="button" class="btn" data-export-current>导出历史</button></div><div id="forecastHistoryTable"></div></section></section><section class="card" id="forecastFuture" hidden><div class="card-head"><span class="card-title-bar"></span><div><h2 class="card-title">售水量预测</h2><div class="card-subtitle">下月、季度、年度到线路的结果待接入</div></div><div class="card-head-actions"><div class="segmented" id="forecastHorizon">${['下月','季度','年度'].map((item,index)=>`<button type="button" data-horizon="${item}" class="${index===0?'active':''}">${item}</button>`).join('')}</div></div></div><div id="forecastFuturePanel"></div></section>`;
+  const html=`<div class="notice">售水量支持下月、季度、年度查询；其余指标为候选项，当前暂无未来预测数据。${risk('L2','预测为样例算法；手工因子仅内存保存，模型及因子权重待业务确认')}</div><div class="card metric-config"><div class="segmented" id="forecastMetrics" aria-label="预测指标">${Object.entries(forecastMetrics).map(([key,item])=>`<button type="button" data-forecast-metric="${key}" class="${key==='water'?'active':''}" aria-pressed="${key==='water'}">${item.label}${item.candidate?'（候选）':''}</button>`).join('')}</div><div class="tabs" id="forecastTabs"><button type="button" class="active" data-forecast-tab="history">指标趋势</button><button type="button" data-forecast-tab="future">指标预测</button></div></div><section id="forecastHistory"><div id="forecastChart"></div><section class="card"><div class="card-head"><span class="card-title-bar"></span><div><h2 class="card-title">历史数据</h2><div class="card-subtitle">实际与计划分列，计划值不作为预测结果</div></div><button type="button" class="btn" data-export-current>导出历史</button></div><div id="forecastHistoryTable"></div></section></section><section class="card" id="forecastFuture" hidden><div class="card-head"><span class="card-title-bar"></span><div><h2 class="card-title">售水量预测</h2><div class="card-subtitle">下月、季度、年度线路级演示预测 · 真实模型待接入</div></div><div class="card-head-actions"><div class="segmented" id="forecastHorizon">${['下月','季度','年度'].map((item,index)=>`<button type="button" data-horizon="${item}" class="${index===0?'active':''}">${item}</button>`).join('')}</div></div></div><div id="forecastFuturePanel"></div></section>`;
   function historyRows(ctx){const rows=E.trend(ctx.data,ctx.filters,ctx.state.granularity),field=forecastMetrics[metric].field;return rows.map(row=>metric==='water'?[row.name,row[field],row.plan_vol]:[row.name,row[field]]);}
   function drawHistoryTable(ctx){const headers=metric==='water'?['期间','实际售水量(m³)','计划值(m³，非预测)']:['期间',`实际${forecastMetrics[metric].label}(${forecastMetrics[metric].unit})`],rows=historyRows(ctx);setCurrent(headers,rows);document.getElementById('forecastHistoryTable').innerHTML=V.table('forecastHistoryValues',headers,rows.slice(-18).map(row=>row.map(cell=>typeof cell==='number'?number(cell,metric==='price'?3:2):text(cell))));}
   function mountHistory(){
@@ -430,7 +431,7 @@
  const reportTemplateCache=new Map();
  function reportTemplate(id){
   const f=WB.state||{};
-  const key=[id,f.period,f.month,f.start,f.end,f.company,f.org,f.nature,f.swapN,f.zeroN].join('|');
+  const key=JSON.stringify([id,f,window.WB_ORG?.authRoot]);
   if(reportTemplateCache.has(key))return reportTemplateCache.get(key);
   const value=buildReportTemplate(id);
   reportTemplateCache.set(key,value);
@@ -469,8 +470,8 @@
    return {available:true,headers:['经营单位','应抄任务(户次)','已抄(户次)','未抄(户次)','抄见率(%)','照片合规率(%)','定位到位率(%)'],rows,note:'按抄表任务基线计算（样例任务自 2023-01 起）；未抄任务不计水量与应收。'};
   }
   if(id==='P-RPT-010'){
-   const rows=currentReadings().filter(row=>row.status!=='正常'||row.arrived===false).map(row=>[row.id,row.card,row.company,row.org,row.reader,row.period,row.status,row.method,row.volume]);
-   return {available:true,headers:['抄表记录','统一表卡','经营单位','组织/线路','抄表员','账期','抄表状态','抄表方式','水量(m³)'],rows,note:'仅展示已有非正常抄表状态；其他未抄见原因未提供时不补写。'};
+   const rows=filtered(D.readTasks||[],WB.state,'period').filter(row=>row.status==='未抄').map(row=>[row.id,row.card,row.company,row.org,row.reader||'—',row.period,row.status,row.method,null]);
+   return {available:true,headers:['抄表记录','统一表卡','经营单位','组织/线路','抄表员','账期','抄表状态','抄表方式','水量(m³)'],rows,note:'按应抄任务中的未抄任务展示；不以已有读数记录反推未抄名单。'};
   }
   if(id==='P-RPT-011'){
    const rows=grouped(filtered(D.alerts,WB.state,'period').filter(row=>['抄表异常','表务异常'].includes(row.category)),'type').map(group=>[group.name,group.items[0].category,group.items.length]);
@@ -481,11 +482,11 @@
    return {available:true,headers:['统一表卡','经营单位','组织/线路','连续零水量周期数','最近账期','核验状态'],rows,note:`按连续${n}个账期检查，缺月即中断；应抄任务基线待核。`};
   }
   if(id==='P-RPT-013'){
-   const previous=D.shiftPeriod(WB.state.month,-12),rows=currentReadings().filter(row=>row.volume>=100).map(row=>{const old=list(D.readings).find(item=>item.userId===row.userId&&item.period===previous);return [row.card,row.company,row.nature,row.period,row.volume,old?.volume,changeRatio(row.volume,old?.volume)];});
+   const previous=D.shiftPeriod(WB.state.month,-12),rows=currentReadings().filter(row=>row.volume>=100).map(row=>{const old=readingByAccountPeriod.get(row.userId+'|'+previous);return [row.card,row.company,row.nature,row.period,row.volume,old?.volume,changeRatio(row.volume,old?.volume)];});
    return {available:true,headers:['统一表卡','经营单位','用水性质','账期','本期水量(m³)','去年同期(m³)','同比(%)'],rows,note:'门槛为月用水量≥100m³；缺去年同期时同比为空。'};
   }
   if(id==='P-RPT-014'){
-   const zeros=new Set(zeroStreaks(3).map(row=>row.last.userId)),previous=D.shiftPeriod(WB.state.month,-12),rows=currentReadings().filter(row=>{const old=list(D.readings).find(item=>item.userId===row.userId&&item.period===previous);return zeros.has(row.userId)||(old&&Math.abs(changeRatio(row.volume,old.volume))>=30);}).map(row=>{const old=list(D.readings).find(item=>item.userId===row.userId&&item.period===previous);return [row.card,row.company,row.org,row.period,row.volume,old?.volume,changeRatio(row.volume,old?.volume),zeros.has(row.userId)?'连续3期零水量':'同比变化超过±30%'];});
+   const zeros=new Set(zeroStreaks(3).map(row=>row.last.userId)),previous=D.shiftPeriod(WB.state.month,-12),rows=currentReadings().filter(row=>{const old=readingByAccountPeriod.get(row.userId+'|'+previous);return zeros.has(row.userId)||(old&&Math.abs(changeRatio(row.volume,old.volume))>=30);}).map(row=>{const old=readingByAccountPeriod.get(row.userId+'|'+previous);return [row.card,row.company,row.org,row.period,row.volume,old?.volume,changeRatio(row.volume,old?.volume),zeros.has(row.userId)?'连续3期零水量':'同比变化超过±30%'];});
    return {available:true,headers:['统一表卡','经营单位','组织/线路','账期','本期水量(m³)','去年同期(m³)','同比(%)','异常依据'],rows,note:'按实际记录判断连续3期零水量或同比变化超过±30%。'};
   }
   if(id==='P-RPT-015')return unavailable(['变更日期','统一表卡','原用水性质','新用水性质','经营单位'],'未提供用水性质变更记录。');
@@ -542,7 +543,7 @@
   const companies=list(D.companies);
   const levelPath=c=>{
    const grid=(c.units||[]).some(u=>String(u).includes('网格'))||/高新/.test(c.name);
-   return grid?'集团 → 分公司 → 网格 → 班组 → 册本':'集团 → 分公司 → 营业所 → 班组 → 线路';
+   return grid?'集团 → 高新供水 → 网格 → 固定人员（册本）':c.id===1?'集团 → 营业中心 → 营业所 → 班组 → 线路 → 册本':'集团 → 分公司 → 站点 → 线路';
   };
   const orgRows=companies.map(c=>[text(c.full||c.name),text((c.units||[]).join('、')||'—'),text(levelPath(c)),'<span class="badge gray">演示组织</span>']);
   const demoStaff=[{name:'演示管理员',company:'集团',role:'集团管理员'},
@@ -562,8 +563,8 @@
   ]).map(r=>[text(r.role),text(r.scope),text(r.mode),text(r.board),text(r.user),text(r.meter),text(r.set)]);
   const roleHeaders=['角色','数据范围','权限模式','指标看板','用户查询','表务管理','系统设置'];
   const html=`<section class="notice v4-tip" role="note">${S()?.icon('shield')||''}<div><strong>平台账号与权限（演示）</strong><div class="muted">本页按“完整功能”演示组织、账号、角色与数据权限；账号与授权仅在原型内存中演示，不写入任何本地存储，也不对接源系统账号。</div></div></section>
-  <section class="kpi-grid four">${V.card('组织节点',String(companies.length+companies.reduce((n,c)=>n+(c.units||[]).length,0)),'个','经营单位 + 下属单位','building')}${V.card('演示账号',String(staff.length),'个',`已启用 ${A?A.accountEnabledCount():0} 个（仅演示）`,'users','green')}${V.card('角色','4','个','集团/分公司/营业所/营销员','role','orange')}${V.card('数据权限模式','B 模式','','按组织层级行级隔离','shield')}</section>
-  <section class="card"><div class="card-head"><span class="card-title-bar"></span><div><h2 class="card-title">组织架构</h2><div class="card-subtitle">四级组织（集团 → 分公司 → 营业所/网格 → 班组 → 线路）；高新区按“高新→网格→班组→册本”映射（“加本”按册本统一处理）</div></div></div><div class="card-body">${V.table('v4OrgTable',['经营单位','下属单位','层级路径','状态'],orgRows)}</div></section>
+  <section class="kpi-grid four">${V.card('组织节点',String(WB_ORG.nodes.size),'个','含集团与末级节点','building')}${V.card('演示账号',String(staff.length),'个',`已启用 ${A?A.accountEnabledCount():0} 个（仅演示）`,'users','green')}${V.card('角色','4','个','集团/分公司/营业所/营销员','role','orange')}${V.card('数据权限模式','B 模式','','按组织层级行级隔离','shield')}</section>
+  <section class="card"><div class="card-head"><span class="card-title-bar"></span><div><h2 class="card-title">组织架构</h2><div class="card-subtitle">异构组织：市区5层，东区/港区3层，高新3层；下钻及数据范围统一按节点身份判断</div></div></div><div class="card-body">${V.table('v4OrgTable',['经营单位','下属单位','层级路径','状态'],orgRows)}</div></section>
   <section class="card"><div class="card-head"><span class="card-title-bar"></span><div><h2 class="card-title">账号管理</h2><div class="card-subtitle">演示账号清单；新增/停用入口仅演示，不产生真实变更</div></div><div class="card-head-actions"><button type="button" class="btn primary" id="v4AddAccount">＋ 新增账号</button></div></div><div class="card-body">${V.table('v4StaffTable',['姓名','所属单位','角色','账号状态','操作'],staffRows)}</div></section>
   <section class="card"><div class="card-head"><span class="card-title-bar"></span><div><h2 class="card-title">角色与数据权限</h2><div class="card-subtitle">B 模式：按组织层级限定可见数据范围；切换角色会真实改变各页可见数据</div></div><div class="card-head-actions"><label class="inline-field">当前演示角色
     <select id="v4RoleSelect" class="control compact" aria-label="当前演示角色">${(A?A.roleMatrix():[{role:'集团管理员'}]).map(r=>`<option ${A&&A.role()===r.role?'selected':''}>${esc(r.role)}</option>`).join('')}</select></label></div></div>
@@ -572,7 +573,7 @@
   return {html,mount(){
    S().refreshIcons&&S().refreshIcons();
    const A=window.WB_ADMIN;if(!A)return;
-   const rerender=()=>{const next=V.renderAuth();const page=document.getElementById('page');page.innerHTML=next.html;next.mount();};
+   const rerender=()=>WBApp.render(false);
    document.getElementById('v4AddAccount')?.addEventListener('click',()=>{
     const options=(D.companies||[]).map(c=>`<option>${esc(c.name)}</option>`).join('');
     S().openModal({title:'新增账号（演示）',subtitle:'仅保存在当前页面内存，不写入本地存储、不对接源系统账号',
@@ -597,7 +598,7 @@
    document.getElementById('v4RoleSelect')?.addEventListener('change',event=>{
     const result=A.setRole(event.target.value);
     if(!result.ok)return;
-    WB.state.company=result.scope||'';WB.state.role=event.target.value;
+    WB.state.role=event.target.value;const company=D.companies.find(c=>c.name===result.scope);WB_ORG.select(company?'c'+company.id:'group');
     S().toast(result.scope?`演示角色：${event.target.value}，数据范围限定为「${result.scope}」`:`演示角色：${event.target.value}，数据范围为全集团`);
     rerender();
    });
@@ -646,7 +647,7 @@
   return {html,mount(){
    S().refreshIcons&&S().refreshIcons();
    const A=window.WB_ADMIN;if(!A)return;
-   const rerender=()=>{const next=V.renderSet();document.getElementById('page').innerHTML=next.html;next.mount();};
+   const rerender=()=>WBApp.render(false);
 
    // 计划值手工填报（内存内闭环）
    document.getElementById('v4PlanEdit')?.addEventListener('click',()=>{

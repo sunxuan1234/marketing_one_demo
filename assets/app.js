@@ -8,7 +8,7 @@
  /* 每页自声明本页查询条件：无则不渲染（首页/用户查询各有自有工具条） */
  const pageFields={
   home:{dims:['company','admin','org'],time:false},
-  drill:{dims:['company','org','admin'],time:true},
+  drill:{dims:['admin'],time:true},
   user:{dims:[],time:false},
   meter:{dims:['company','org','meterType','caliberMm'],time:true},
   alert:{dims:['company','period'],time:true},
@@ -26,8 +26,10 @@
  const allowedDims=id=>pageConf(id).dims.filter(k=>k!=='period');
  const hasTime=id=>pageConf(id).time;
  const queryKeys=id=>allowedDims(id);
+ const dateMin=D.periods[0],dateMax=D.periods[D.periods.length-1];
+ const clearChildren=key=>{const hierarchy=['company','org','team','line'];const at=hierarchy.indexOf(key);if(at>=0)hierarchy.slice(at+1).forEach(k=>WB.state[k]='');};
  const temporal=id=>hasTime(id);
- const allowed=new Set([...dimensions,'period','caliber','month','start','end','metric','report','tab','function']);
+ const allowed=new Set([...dimensions,'period','caliber','month','start','end','metric','report','tab','function','orgNodeId']);
  const module=id=>C.modules.find(m=>m.id===id)||C.modules[0];
  function parse(){const [rawId,q='']=(location.hash||'#/home').replace(/^#\/?/,'').split('?');const id=rawId==='kpi'?'home':rawId;return{id:C.modules.some(m=>m.id===id)?id:'home',q:new URLSearchParams(q)};}
  App.navigate=(id,params={})=>{id=module(id).id;const q=new URLSearchParams();for(const[k,v]of Object.entries(params)){if(allowed.has(k)){WB.state[k]=v;if(v!==''&&v!=null)q.set(k,String(v));}}const target='#/'+id+(q.size?'?'+q:'');if(location.hash===target)render(false);else location.hash=target;};
@@ -41,20 +43,28 @@
   WB.ui=WB.ui||{};const s=WB.state,keys=queryKeys(App.current),time=temporal(App.current),allUnits=[...new Set(D.companies.flatMap(c=>c.units))],units=D.companies.find(c=>c.name===s.company)?.units||allUnits;
   const values={company:D.companies.map(c=>c.name),org:units,admin:D.adminRegions.map(r=>({value:r.code,label:r.name})),nature:D.natures,industry:D.industries,caliberMm:D.calibers,meterType:D.meterTypes};
   const select=(key,list,placeholder)=>`<label class="field query-field"><span>${fields[key]||key}</span><select id="f-${key}" class="control" data-filter="${key}">${placeholder?`<option value="">${placeholder}</option>`:''}${options(list,s[key])}</select></label>`;
-  const timeFields=time?`<label class="field query-field"><span>统计时段</span><select id="f-period" data-filter="period" class="control">${options(['当月','年内累计','近5年','近10年','自定义'],s.period)}</select></label><label class="field query-field"><span>截至月份</span><input id="f-month" data-filter="month" class="control" type="month" min="2017-01" max="2026-10" value="${esc(s.month)}"></label><label class="field query-field" ${s.period==='自定义'?'':'hidden'} id="queryStartField"><span>开始月份</span><input id="f-start" data-filter="start" class="control" type="month" min="2017-01" max="2026-10" value="${esc(s.start)}"></label>`:'';
+  const timeFields=time?`<label class="field query-field"><span>统计时段</span><select id="f-period" data-filter="period" class="control">${options(['当月','年内累计','近5年','近10年','自定义'],s.period)}</select></label><label class="field query-field"><span>截至月份</span><input id="f-month" data-filter="month" class="control" type="month" min="${dateMin}" max="${dateMax}" value="${esc(s.month)}"></label><label class="field query-field" ${s.period==='自定义'?'':'hidden'} id="queryStartField"><span>开始月份</span><input id="f-start" data-filter="start" class="control" type="month" min="${dateMin}" max="${dateMax}" value="${esc(s.start)}"></label>`:'';
   const primary=keys.slice(0,time?3:4),advanced=keys.slice(primary.length),chips=keys.filter(k=>s[k]).map(k=>`<span class="active-filter-chip"><span>${fields[k]}：${esc(k==='admin'?D.adminRegions.find(r=>r.code===s[k])?.name:s[k])}</span><button type="button" data-clear-filter="${k}" aria-label="清除${fields[k]}">×</button></span>`).join('');
   document.getElementById('globalFilters').innerHTML=`<section class="query-panel card ${WB.ui.queryCollapsed?'is-collapsed':''}"><div class="query-panel-head"><div class="query-panel-title">${WB.shell.icon('filter')}<div><h2>查询条件</h2></div></div><button type="button" class="btn text-btn" id="toggleQueryPanel" aria-expanded="${!WB.ui.queryCollapsed}">${WB.ui.queryCollapsed?'展开条件':'收起条件'}</button></div><div class="query-panel-content" ${WB.ui.queryCollapsed?'hidden':''}><div class="query-fields"><div class="filter-grid query-grid">${timeFields}${primary.map(k=>select(k,values[k],'全部')).join('')}</div>${advanced.length?`<div class="filter-grid query-grid advanced-filters" id="advancedFilters" ${WB.ui.advancedFilters?'':'hidden'}>${advanced.map(k=>select(k,values[k],'全部')).join('')}</div>`:''}</div><div class="query-panel-footer"><div class="active-filter-wrap"><span class="active-filter-label">已选条件</span><div class="active-filter-list">${chips||'<span class="muted">未限定</span>'}</div></div><div class="query-actions">${advanced.length?`<button type="button" class="btn text-btn" id="advancedFilter">${WB.ui.advancedFilters?'收起更多':'更多条件'}</button>`:''}<button type="button" class="btn" id="resetFilters">重置</button><button type="button" class="btn primary" id="applyFilters">查询</button></div></div></div></section>`;
   document.getElementById('toggleQueryPanel').onclick=()=>{WB.ui.queryCollapsed=!WB.ui.queryCollapsed;queryPanel();};
   document.getElementById('advancedFilter')?.addEventListener('click',()=>{WB.ui.advancedFilters=!WB.ui.advancedFilters;document.getElementById('advancedFilters').hidden=!WB.ui.advancedFilters;document.getElementById('advancedFilter').textContent=WB.ui.advancedFilters?'收起更多':'更多条件';});
   document.getElementById('f-period')?.addEventListener('change',e=>document.getElementById('queryStartField').hidden=e.target.value!=='自定义');
   document.getElementById('f-company')?.addEventListener('change',e=>{const el=document.getElementById('f-org');if(el)el.innerHTML='<option value="">全部</option>'+options(D.companies.find(c=>c.name===e.target.value)?.units||allUnits,'');});
-  document.getElementById('applyFilters').onclick=()=>{const staged=Object.fromEntries([...document.querySelectorAll('[data-filter]')].map(el=>[el.dataset.filter,el.value]));if(staged.period==='自定义'&&staged.start>staged.month)return WB.shell.toast('开始月份不能晚于截至月份');Object.assign(WB.state,staged);WB.state.end=WB.state.month;render(false);};
-  document.getElementById('resetFilters').onclick=()=>{Object.assign(WB.state,{period:'年内累计',month:'2026-10',end:'2026-10',start:'2026-01',company:'',org:'',admin:'',nature:'',industry:'',caliberMm:'',meterType:'',functional:'',layer:'SOURCE'});render(false);};
-  document.querySelectorAll('[data-clear-filter]').forEach(b=>b.onclick=()=>{WB.state[b.dataset.clearFilter]='';if(b.dataset.clearFilter==='company')WB.state.org='';render(false);});
+  document.getElementById('applyFilters').onclick=()=>{const staged=Object.fromEntries([...document.querySelectorAll('[data-filter]')].map(el=>[el.dataset.filter,el.value]));if(staged.month!==undefined&&(!staged.month||!/^\d{4}-\d{2}$/.test(staged.month)||staged.month<dateMin||staged.month>dateMax))return WB.shell.toast(`请选择 ${dateMin} 至 ${dateMax} 的月份`);if(staged.period==='自定义'&&(!staged.start||staged.start<dateMin))return WB.shell.toast(`开始月份不能早于 ${dateMin}`);if(staged.period==='自定义'&&staged.start>staged.month)return WB.shell.toast('开始月份不能晚于截至月份');if(staged.company!==undefined&&staged.company!==WB.state.company)clearChildren('company');else if(staged.org!==undefined&&staged.org!==WB.state.org)clearChildren('org');Object.assign(WB.state,staged);WB.state.end=WB.state.month;render(false);};
+  document.getElementById('resetFilters').onclick=()=>{Object.assign(WB.state,{period:'年内累计',month:'2026-10',end:'2026-10',start:'2026-01',company:'',org:'',admin:'',nature:'',industry:'',caliberMm:'',meterType:'',team:'',line:'',functional:'',layer:'SOURCE'});render(false);};
+  document.querySelectorAll('[data-clear-filter]').forEach(b=>b.onclick=()=>{WB.state[b.dataset.clearFilter]='';clearChildren(b.dataset.clearFilter);render(false);});
  }
  App.openSearch=()=>WB.shell.openSearch();App.openCatalog=App.openSearch;
  App.openFunction=id=>{const f=C.functions.find(f=>f.id===id);if(f?.route)App.navigate(f.route,f.params||{});else WB.shell.toast('此项暂无独立页面');};
  App.apply=()=>render(false);App.render=render;
+ function contextBar(){
+  const host=document.getElementById('page');
+  const scope=window.WB_ORG?WB_ORG.crumbs().join(' / '):[WB.state.company||'全集团',WB.state.org,WB.state.team,WB.state.line].filter(Boolean).join(' / ');
+  const bar=document.createElement('section');bar.className='v4-context-bar';bar.setAttribute('aria-label','当前查询范围与数据说明');
+  bar.innerHTML=`<div><strong>${esc(scope)}</strong><span>${esc(E.periodLabel(WB.state))}</span></div><div class="v4-context-actions"><span>样例覆盖 ${esc(dateMin)}—${esc(dateMax)}</span><button type="button" class="btn text-btn" id="dataGuide">口径与演示说明</button></div>`;
+  host.querySelector('.page-heading')?.after(bar);
+  bar.querySelector('#dataGuide').onclick=()=>WB.shell.openModal({title:'数据口径与演示边界',body:`<div class="v4-guide"><p>当前为合成样例；账号、计划、规则、预测因子及演示督办变更仅保存在本次页面内存中，刷新后恢复。没有接入或回写源业务系统。</p><dl><dt>注册用户数</dt><dd>统计期末存量，不将各月用户数相加。</dd><dt>收费率</dt><dd>同口径实收本金合计 ÷ 应收本金合计；跨期收款归属需业务签认。</dd><dt>售水均价</dt><dd>水费收入合计 ÷ 售水量合计，不能平均各单位均价。</dd><dt>产销差率</dt><dd>（供水量 − 售水量）÷ 供水量。供水映射缺失时显示“—”，不按零计算。</dd><dt>缺数与零值</dt><dd>“—”表示缺少数据或无法计算；0 表示已取得数据且结果为零。近5年/近10年仅展示实际可用年份。</dd><dt>风险提示</dt><dd>L1：缺少真实数据源或仅演示；L2：计算口径、映射或规则仍待确认。</dd></dl></div>`,footer:'<button class="btn primary" data-close>我知道了</button>'});
+ }
  function render(scroll=true){const parsed=parse(),changed=appliedHash!==location.hash;App.current=parsed.id; if(parsed.id==='home'||parsed.id==='drill'){
    if(!parsed.q.has('company')&&!parsed.q.has('admin')){WB.state.company='';WB.state.admin='';WB.state.org='';WB.state.team='';WB.state.line='';}
    else if(parsed.id==='drill'){
@@ -63,10 +73,10 @@
      if(!parsed.q.has('team')){WB.state.team='';WB.state.line='';}
      if(!parsed.q.has('line')){WB.state.line='';}
    }
-  }if(changed){parsed.q.forEach((v,k)=>{if(allowed.has(k))WB.state[k]=v;});appliedHash=location.hash;}WB.state.layer='SOURCE';WB.state.functional='';const valid=queryKeys(App.current);dimensions.filter(k=>!valid.includes(k)&&!['team','line'].includes(k)).forEach(k=>WB.state[k]='');
+  }if(changed){parsed.q.forEach((v,k)=>{if(allowed.has(k))WB.state[k]=v;});appliedHash=location.hash;}if(parsed.id!=='drill')WB.state.orgNodeId=WB_ORG.authRoot;else if(!parsed.q.has('orgNodeId'))WB.state.orgNodeId=WB_ORG.resolve({...WB.state,orgNodeId:''}).id;if(!WB_ORG.within(WB.state.orgNodeId,WB_ORG.authRoot))WB.state.orgNodeId=WB_ORG.authRoot;WB.state.layer='SOURCE';WB.state.functional='';const valid=queryKeys(App.current);dimensions.filter(k=>!valid.includes(k)&&!(App.current==='drill'&&['team','line'].includes(k))).forEach(k=>WB.state[k]='');
   E.clearCharts();WB.currentTable={headers:[],rows:[]};WB.shell.closeLayers();const page=document.getElementById('page'),global=document.getElementById('globalFilters');if(global.parentElement===page)document.getElementById('main').insertBefore(global,page);page.innerHTML=heading(module(App.current));queryPanel();WB.shell.setActiveNav(App.current);document.title=`${module(App.current).name}｜营销一体化V4`;
   try{let result;switch(App.current){case'home':result=WBHome.renderHome();break;case'kpi':result=WBHome.renderKpi();break;case'drill':result=WBHome.renderDrill();break;case'user':result=WBBusiness.renderUser();break;case'meter':result=WBBusiness.renderMeter();break;case'alert':result=WBBusiness.renderAlert();break;case'project':result=WBBusiness.renderProject();break;default:result=V['render'+({ar:'Ar',dma:'Dma',forecast:'Forecast',work:'Work',data:'Data',report:'Report',auth:'Auth',set:'Set'}[App.current])]();}
-   if(typeof result==='string')result={html:result};if(result?.html!==undefined)page.innerHTML=(App.current==='drill'?'':heading(module(App.current)))+result.html;page.querySelector('.page-heading').after(global);result?.mount?.();const moduleSearchButton=document.getElementById('moduleSearch');if(moduleSearchButton)moduleSearchButton.onclick=App.openSearch;WB.shell.refreshIcons();if(scroll)window.scrollTo({top:0,behavior:'instant'});
+   if(typeof result==='string')result={html:result};if(result?.html!==undefined)page.innerHTML=(App.current==='drill'?'':heading(module(App.current)))+result.html;page.querySelector('.page-heading').after(global);result?.mount?.();contextBar();WB_ORG.mount();const moduleSearchButton=document.getElementById('moduleSearch');if(moduleSearchButton)moduleSearchButton.onclick=App.openSearch;WB.shell.refreshIcons();if(scroll)window.scrollTo({top:0,behavior:'instant'});
    const report=changed&&parsed.q.get('report');if(report)document.querySelector(`[data-preview-report="${CSS.escape(report)}"]`)?.click();
   }catch(error){console.error('页面加载失败',App.current,error);page.insertAdjacentHTML('beforeend',`<div class="notice danger">页面加载失败：${esc(error.message)}</div>`);}
  }

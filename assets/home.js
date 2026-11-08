@@ -175,7 +175,7 @@ window.WBHome = (() => {
         button.addEventListener('click', () => {
           const metric = button.dataset.drillMetric;
           if (window.WBApp?.current !== 'drill') { navigate('drill', { metric, company: '', org: '', admin: '' }); return; }
-          const params = { metric };
+          const params = { metric, orgNodeId: WB_ORG.resolve().id };
           if (WB.state.company) params.company = WB.state.company;
           if (WB.state.org) params.org = WB.state.org;
           if (WB.state.team) params.team = WB.state.team;
@@ -899,11 +899,13 @@ window.WBHome = (() => {
   }
   const dimensionLabels = { nature: '用水性质', company: '经营单位', industry: '行业', caliber: '水表口径', meterType: '水表类型', admin: '行政区' };
   function analysisDimensionLabel() {
+    if(drillAnalysisDimension==='orgNode')return WB_ORG.children()[0]?.type||'组织';
     const labels = orgLabels();
     const dynamic = { org: labels.org.replace(' / 站点', ''), team: labels.team, line: labels.line };
     return dynamic[drillAnalysisDimension] || dimensionLabels[drillAnalysisDimension] || '维度';
   }
   function drillChartClick(params, ctx) {
+    if(WB_ORG.children().length){const child=WB_ORG.children().find(n=>n.name===params?.name);if(child)WB_ORG.go(child.id);return;}
     const level = drillNextLevel();
     if (!level) {
       const chartId = [...E.charts.values()].find(entry => entry.context === ctx)?.id;
@@ -1174,12 +1176,7 @@ window.WBHome = (() => {
   }
 
   function drillBreadcrumb() {
-    const parts = ['首页', '集团'];
-    if (WB.state.company) parts.push(WB.state.company);
-    if (WB.state.org) parts.push(WB.state.org);
-    if (WB.state.team) parts.push(WB.state.team);
-    if (WB.state.line) parts.push(WB.state.line);
-    return parts;
+    return WB_ORG.crumbs();
   }
   function drillRisk() {
     return `<span class="v4-risk" data-tip="下钻层级按组织与映射口径计算；缺数不按0处理" title="下钻层级按组织与映射口径计算；缺数不按0处理">⚠ L2</span>`;
@@ -1191,20 +1188,10 @@ window.WBHome = (() => {
     return grid ? { org: '网格', team: '班组', line: '册本' } : { org: '营业所 / 站点', team: '班组', line: '线路' };
   }
   function drillNextLevel() {
-    const labels = orgLabels();
-    if (!WB.state.company) return { key: 'company', label: '分公司' };
-    if (!WB.state.org) return { key: 'org', label: labels.org };
-    if (!WB.state.team) return { key: 'team', label: labels.team };
-    if (!WB.state.line) return { key: 'line', label: labels.line };
-    return null;
+    const children=WB_ORG.children();return children.length?{key:'orgNode',label:children[0].type}:null;
   }
-  function drillChildUnits() {
-    const level = drillNextLevel();
-    if (!level) return [];
-    const f = filters();
-    const rows = groupRows({ data: E.filterFacts(f), filters: f, state: { dimension: level.key } }, 'sold_vol');
-    return rows.filter(row => row.count && row.name).map(row => row.name);
-  }
+  function drillChildUnits(){return WB_ORG.children().map(n=>n.name);}
+
   // 抄表到户三类口径（需求 S08-019 / NEW-1-08）：
   // 非居民数量 = 非居民 + 特行 + 居民非阶梯（除居民总表）；抄表到户 = 居民阶梯 + 考核表；未抄表到户 = 二次加压表后非注册（人工添加）
   // 样例无「考核表 / 居民总表 / 二次加压表」字段，故：考核表并入居民阶梯暂不单列、未抄表到户取 0 并在卡片标注待接入。
@@ -1221,7 +1208,7 @@ window.WBHome = (() => {
   }
   // ===== 业务分类视图（会议 MEET-12：用户管理/表务管理/抄表质量管理/账务管理/收费）=====
   function scopeMatch(f) {
-    return row => (!f.company || row.company === f.company) && (!f.org || row.org === f.org)
+    return row => WB_ORG.allows(row,f) && (!f.company || row.company === f.company) && (!f.org || row.org === f.org)
       && (!f.team || row.team === f.team) && (!f.line || row.line === f.line);
   }
   function domainSeries(kind, f) {
@@ -1325,11 +1312,11 @@ window.WBHome = (() => {
   const lossReasons = [];
   function scopedUsers() {
     const f = filters();
-    return (D.users || []).filter(user => (!f.company || user.company === f.company) && (!f.org || user.org === f.org) && (!f.nature || user.nature === f.nature) && (!f.admin || user.adminCode === f.admin));
+    return (D.users || []).filter(user => WB_ORG.allows(user,f) && (!f.company || user.company === f.company) && (!f.org || user.org === f.org) && (!f.nature || user.nature === f.nature) && (!f.admin || user.adminCode === f.admin));
   }
   function scopedBills() {
     const f = filters();
-    return (D.bills || []).filter(bill => (!f.company || bill.company === f.company) && (!f.org || bill.org === f.org) && (!f.nature || bill.nature === f.nature) && (!f.admin || bill.adminCode === f.admin));
+    return (D.bills || []).filter(bill => WB_ORG.allows(bill,f) && (!f.company || bill.company === f.company) && (!f.org || bill.org === f.org) && (!f.nature || bill.nature === f.nature) && (!f.admin || bill.adminCode === f.admin));
   }
   function sumBy(rows, key) { return rows.reduce((total, row) => total + (Number(row[key]) || 0), 0); }
   function groupSum(rows, key, fields) {
@@ -1480,8 +1467,8 @@ window.WBHome = (() => {
     const nextLevelMeta = drillNextLevel();
     drillAnalysisDimension = nextLevelMeta ? nextLevelMeta.key : 'nature';
     const crumbs = drillBreadcrumb().map((part, index) => index === 0 ? `<span>${esc(part)}</span>` : `<span class="breadcrumb-separator">/</span><span>${esc(part)}</span>`).join('');
-    const scopePath = drillBreadcrumb().slice(1).join(' / ');
-    const heading = `<header class="page-heading product-page-heading"><div class="page-heading-copy"><div class="breadcrumb"><span>营销一体化</span><span class="breadcrumb-separator">/</span>${crumbs}</div><div class="page-title-row"><h1 class="page-title">${esc(scopePath)} · 指标详情</h1><span class="environment-badge"><i></i>演示数据</span>${drillRisk()}</div><p class="page-description">${esc(drillBreadcrumb().slice(1).join(' / '))} 层级指标与维度分析 · ${drillNextLevel() ? '可继续下钻到' + drillNextLevel().label : '已到最细层级'}</p></div><div class="page-heading-side"><div class="page-data-meta"><span>数据日期</span><strong>${esc(D.asOf)}</strong></div></div></header>`;
+    const scopePath = drillBreadcrumb().join(' / ');
+    const heading = `<header class="page-heading product-page-heading"><div class="page-heading-copy"><div class="breadcrumb"><span>营销一体化</span><span class="breadcrumb-separator">/</span>${crumbs}</div><div class="page-title-row"><h1 class="page-title">${esc(scopePath)} · 指标详情</h1><span class="environment-badge"><i></i>演示数据</span>${drillRisk()}</div><p class="page-description">${esc(drillBreadcrumb().join(' / '))} 层级指标与维度分析 · ${drillNextLevel() ? '可继续下钻到' + drillNextLevel().label : '已到最细层级'}</p></div><div class="page-heading-side"><div class="page-data-meta"><span>数据日期</span><strong>${esc(D.asOf)}</strong></div></div></header>`;
     const baseDims = [['nature', '用水性质'], ['meterType', '水表类型'], ['caliber', '水表口径'], ['industry', '行业主类'], ['admin', '行政区']];
     // 注册数专属：抄表到户（需求 NEW-1-08 / S08-019）。行政区 8 区口径需功能区映射，样例仅依法定行政区，故不新增该维度。
     const registeredDims = analysisMetric === 'registered_count' ? [['collection', '抄表到户']] : [];
@@ -1491,7 +1478,7 @@ window.WBHome = (() => {
     const childHtml = children.length ? `<div class="drill-children"><span class="dc-label">继续下钻</span>${children.map(name => `<button type="button" class="dc-chip" data-drill-child="${esc(name)}">${esc(name)}<span>→</span></button>`).join('')}</div>` : '';
     root.innerHTML = `${heading}<div class="drill-page">
       <div class="drill-toolbar">
-        <button type="button" class="btn" id="drillBack">← ${line ? '返回' + orgLabels().team : team ? '返回' + orgLabels().org.replace(' / 站点', '') : org ? '返回分公司' : company ? '返回集团' : '返回首页'}</button>
+        <button type="button" class="btn" id="drillBack">← ${WB_ORG.resolve().id===WB_ORG.authRoot?'已到权限根节点':'返回上一级'}</button>
         <span class="drill-path">${drillBreadcrumb().map(esc).join(' / ')}</span>
         <span class="drill-note">整页下钻视图 · 面包屑随层级变化</span>
       </div>
@@ -1508,22 +1495,10 @@ window.WBHome = (() => {
     updateCards();
     registerAnalysis();
     document.getElementById('drillBack')?.addEventListener('click', () => {
-      if (line) { WB.state.line = ''; navigate('drill', { company, org, team }); }
-      else if (team) { WB.state.team = ''; navigate('drill', { company, org }); }
-      else if (org) { WB.state.org = ''; navigate('drill', { company }); }
-      else if (company) { WB.state.company = ''; WB.state.org = ''; WB.state.team = ''; WB.state.line = ''; navigate('drill', { metric: analysisMetric }); }
-      else { WB.state.company = ''; WB.state.org = ''; WB.state.team = ''; WB.state.line = ''; navigate('home', {}); }
+      const n=WB_ORG.resolve();if(n.id===WB_ORG.authRoot)return WB.shell.toast('已到当前视角最高层');WB_ORG.go(n.parentId);
     });
-    root.querySelectorAll('[data-drill-child]').forEach(button => button.addEventListener('click', () => {
-      const level = drillNextLevel();
-      if (!level) return;
-      const params = { company };
-      if (org) params.org = org;
-      if (team) params.team = team;
-      if (line) params.line = line;
-      params[level.key] = button.dataset.drillChild;
-      navigate('drill', params);
-    }));
+    root.querySelectorAll('[data-drill-child]').forEach(button=>button.addEventListener('click',()=>{const child=WB_ORG.children().find(n=>n.name===button.dataset.drillChild);if(child)WB_ORG.go(child.id);}));
+
     renderSpecial();
     if (drillDimLayout === 'domain') {
       DOMAIN_GROUPS.forEach(([, items]) => items.forEach(([kind, title]) => {

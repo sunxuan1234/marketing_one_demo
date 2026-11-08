@@ -1,0 +1,24 @@
+-- Report catalogue only; no production facts or accounts seeded.
+BEGIN;
+INSERT INTO ads.report_definition(code,name,category,parameter_schema,template_version) VALUES('P-RPT-001','水表基础信息异常报表','表务计量','{}','v4.2') ON CONFLICT(code) DO NOTHING;
+INSERT INTO ads.report_definition(code,name,category,parameter_schema,template_version) VALUES('P-RPT-002','周检水表报表','表务计量','{}','v4.2') ON CONFLICT(code) DO NOTHING;
+INSERT INTO ads.report_definition(code,name,category,parameter_schema,template_version) VALUES('P-RPT-003','故障水表报表','表务计量','{}','v4.2') ON CONFLICT(code) DO NOTHING;
+INSERT INTO ads.report_definition(code,name,category,parameter_schema,template_version) VALUES('P-RPT-004','周检换表前后周期水量对比报表','表务计量','{}','v4.2') ON CONFLICT(code) DO NOTHING;
+INSERT INTO ads.report_definition(code,name,category,parameter_schema,template_version) VALUES('P-RPT-005','故障换表前后周期水量对比报表','表务计量','{}','v4.2') ON CONFLICT(code) DO NOTHING;
+INSERT INTO ads.report_definition(code,name,category,parameter_schema,template_version) VALUES('P-RPT-006','水表入库统计表','水表仓储','{}','v4.2') ON CONFLICT(code) DO NOTHING;
+INSERT INTO ads.report_definition(code,name,category,parameter_schema,template_version) VALUES('P-RPT-007','水表库存统计表','水表仓储','{}','v4.2') ON CONFLICT(code) DO NOTHING;
+INSERT INTO ads.report_definition(code,name,category,parameter_schema,template_version) VALUES('P-RPT-008','各仓库库存报表','水表仓储','{}','v4.2') ON CONFLICT(code) DO NOTHING;
+INSERT INTO ads.report_definition(code,name,category,parameter_schema,template_version) VALUES('P-RPT-009','抄见率统计报表','抄表与水量','{}','v4.2') ON CONFLICT(code) DO NOTHING;
+INSERT INTO ads.report_definition(code,name,category,parameter_schema,template_version) VALUES('P-RPT-010','未抄见报表','抄表与水量','{}','v4.2') ON CONFLICT(code) DO NOTHING;
+INSERT INTO ads.report_definition(code,name,category,parameter_schema,template_version) VALUES('P-RPT-011','异常状态统计报表','抄表与水量','{}','v4.2') ON CONFLICT(code) DO NOTHING;
+INSERT INTO ads.report_definition(code,name,category,parameter_schema,template_version) VALUES('P-RPT-012','连续零水量用户报表','抄表与水量','{}','v4.2') ON CONFLICT(code) DO NOTHING;
+INSERT INTO ads.report_definition(code,name,category,parameter_schema,template_version) VALUES('P-RPT-013','100立方米以上用户报表','抄表与水量','{}','v4.2') ON CONFLICT(code) DO NOTHING;
+INSERT INTO ads.report_definition(code,name,category,parameter_schema,template_version) VALUES('P-RPT-014','异常水量分析报表','抄表与水量','{}','v4.2') ON CONFLICT(code) DO NOTHING;
+INSERT INTO ads.report_definition(code,name,category,parameter_schema,template_version) VALUES('P-RPT-015','用水性质变更统计报表','用户与册本','{}','v4.2') ON CONFLICT(code) DO NOTHING;
+INSERT INTO ads.report_definition(code,name,category,parameter_schema,template_version) VALUES('P-RPT-016','小区各用水性质户数报表','用户与册本','{}','v4.2') ON CONFLICT(code) DO NOTHING;
+INSERT INTO ads.report_definition(code,name,category,parameter_schema,template_version) VALUES('P-RPT-017','册本户数报表','用户与册本','{}','v4.2') ON CONFLICT(code) DO NOTHING;
+INSERT INTO ads.report_definition(code,name,category,parameter_schema,template_version) VALUES('P-RPT-018','存量用水册本调整报表','用户与册本','{}','v4.2') ON CONFLICT(code) DO NOTHING;
+INSERT INTO ads.report_definition(code,name,category,parameter_schema,template_version) VALUES('P-RPT-019','新增用户入册报表','用户与册本','{}','v4.2') ON CONFLICT(code) DO NOTHING;
+INSERT INTO ads.report_definition(code,name,category,parameter_schema,template_version) VALUES('P-RPT-020','新增用户按用水性质统计报表','用户与册本','{}','v4.2') ON CONFLICT(code) DO NOTHING;
+INSERT INTO ads.report_definition(code,name,category,parameter_schema,template_version) VALUES('P-RPT-021','注销用户按用水性质统计报表','用户与册本','{}','v4.2') ON CONFLICT(code) DO NOTHING;
+COMMIT;

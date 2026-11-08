@@ -16,7 +16,7 @@
  function matches(x,f=WB.state){
   const needFallback=!x.company||!x.org||!x.nature||!x.adminCode;
   const row=needFallback?{...(linkedUser(x)||{}),...x}:x;
-  return [['company','company'],['admin','adminCode'],['org','org'],['nature','nature'],['industry','industry'],['caliberMm','caliber'],['meterType','meterType']].every(([filter,key])=>!f[filter]||row[key]===f[filter])&&(!f.functional||(row.functionalZones||[]).includes(f.functional)||D.functionalZones?.some(z=>z.code===f.functional&&z.companyId===row.companyId&&z.parents.includes(row.adminCode)));
+  return (!window.WB_ORG||WB_ORG.allows(row,f))&&[['company','company'],['admin','adminCode'],['org','org'],['nature','nature'],['industry','industry'],['caliberMm','caliber'],['meterType','meterType']].every(([filter,key])=>!f[filter]||row[key]===f[filter])&&(!f.functional||(row.functionalZones||[]).includes(f.functional)||D.functionalZones?.some(z=>z.code===f.functional&&z.companyId===row.companyId&&z.parents.includes(row.adminCode)));
  }
  let periodCache=new Map();
  function periodsOf(f){

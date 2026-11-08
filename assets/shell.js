@@ -26,7 +26,7 @@
   const roles = [{ key: '集团管理员', icon: 'role', desc: '演示查询视角' }];
   const domainModules = {
     HOME: 'home', KPI: 'kpi', USER: 'user', METER: 'meter', ALERT: 'alert', PROJECT: 'project',
-    AR: 'ar', DMA: 'dma', FORECAST: 'forecast', WORK: 'work', DATA: 'data', REPORT: 'report', AUTH: 'report', SET: 'report'
+    AR: 'ar', DMA: 'dma', FORECAST: 'forecast', WORK: 'work', DATA: 'data', REPORT: 'report', AUTH: 'auth', SET: 'set'
   };
 
   let initialized = false;

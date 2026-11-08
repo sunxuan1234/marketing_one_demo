@@ -15,7 +15,7 @@ window.WB=window.WB||{};
  E.filterLabel=(f=WB.state)=>[E.periodLabel(f),f.company||'集团',f.admin?D.adminRegions.find(r=>r.code===f.admin)?.name:'',f.org,f.nature,f.industry,f.caliberMm,f.meterType,'合成样例'].filter(Boolean).join('｜');
  function periods(f){let end=f.month||f.end||'2026-10',year=+end.slice(0,4);if(f.period==='当月')return[end];if(f.period==='近5年')return D.periods.filter(p=>p>=`${year-4}-01`&&p<=end);if(f.period==='近10年')return D.periods.filter(p=>p>=`${year-9}-01`&&p<=end);if(f.period==='自定义')return D.periods.filter(p=>p>=(f.start||'2026-01')&&p<=end);return D.periods.filter(p=>p>=`${year}-01`&&p<=end);}
  E.periods=periods;
- const FILTER_KEYS=['period','caliber','month','end','start','year','company','admin','functional','org','nature','industry','caliberMm','meterType','team','line'];
+ const FILTER_KEYS=['period','caliber','month','end','start','year','company','admin','functional','org','nature','industry','caliberMm','meterType','team','line','orgNodeId'];
  const factCache=new Map();
  const filterSignature=(f,list)=>{let sig='';for(const k of FILTER_KEYS)sig+=String(f[k]??'')+'\u0001';return sig+list.join(',');};
  E.factCacheSize=()=>factCache.size;
@@ -38,7 +38,7 @@ window.WB=window.WB||{};
      const set=new Set(list);
      candidates=D.facts.filter(x=>set.has(monthMode?x.naturalMonth:x.period));
    }
-   const rows=candidates.filter(x=>(!eff.company||x.company===eff.company)&&(!eff.admin||x.adminCode===eff.admin)&&(!eff.functional||x.functionalZones.includes(eff.functional))&&(!eff.org||x.org===eff.org)&&(!eff.nature||x.nature===eff.nature)&&(!eff.industry||x.industry===eff.industry)&&(!eff.caliberMm||x.caliber===eff.caliberMm)&&(!eff.meterType||x.meterType===eff.meterType)&&(!eff.team||x.team===eff.team)&&(!eff.line||x.line===eff.line));
+   const rows=candidates.filter(x=>(!window.WB_ORG||WB_ORG.allows(x,eff))&&(!eff.company||x.company===eff.company)&&(!eff.admin||x.adminCode===eff.admin)&&(!eff.functional||x.functionalZones.includes(eff.functional))&&(!eff.org||x.org===eff.org)&&(!eff.nature||x.nature===eff.nature)&&(!eff.industry||x.industry===eff.industry)&&(!eff.caliberMm||x.caliber===eff.caliberMm)&&(!eff.meterType||x.meterType===eff.meterType)&&(!eff.team||x.team===eff.team)&&(!eff.line||x.line===eff.line));
    factCache.set(sig,rows);
    if(factCache.size>48){const first=factCache.keys().next().value;factCache.delete(first);}
    return rows;
@@ -62,6 +62,7 @@ window.WB=window.WB||{};
  };
  const groupCache=new WeakMap();
  E.group=(rows,key,f=WB.state)=>{
+   if(key==='orgNode')return E.group(rows,x=>WB_ORG.childName(x),f);
    if(typeof key!=='function'){
      let perRows=groupCache.get(rows);if(!perRows){perRows=new Map();groupCache.set(rows,perRows);}
      const cached=perRows.get(String(key));if(cached)return cached.map(item=>({...item}));
@@ -81,7 +82,7 @@ window.WB=window.WB||{};
    const result=[...map].sort((a,b)=>a[0].localeCompare(b[0])).map(([name,items])=>({name,...E.aggregate(items,f)}));
    perRows.set(cacheKey,result);return result.map(item=>({...item}));
  };
- E.dimensionOptions={company:'经营单位',admin:'法定行政区',org:'组织节点',nature:'用水性质',industry:'行业',caliber:'水表口径',meterType:'水表类型',wholesale:'趸售标志',manufacturer:'厂家',status:'状态',type:'类型',severity:'级别'};
+ E.dimensionOptions={orgNode:'直属下级组织',company:'经营单位',admin:'法定行政区',org:'组织节点',nature:'用水性质',industry:'行业',caliber:'水表口径',meterType:'水表类型',wholesale:'趸售标志',manufacturer:'厂家',status:'状态',type:'类型',severity:'级别'};
  E.metricOptions={sold_vol:'售水量(m³)',supply_vol:'供水量(m³)',registered_count:'注册用户数(户)',new_count:'新增用户(户)',loss_rate_pct:'产销差率(%)',charge_rate_pct:'收费率(%)',avg_price_yuan:'售水均价(元/m³)',plan_completion_pct:'计划完成率(%)',receivable_principal:'应收本金(元)',received_principal:'实收本金(元)',wholesale_vol:'趸售水量(m³)'};
  E.metric=(name)=>({count:{label:'数量',unit:'条',decimals:0},meter_count:{label:'水表数量',unit:'只',decimals:0},record_count:{label:'记录数',unit:'条',decimals:0},sold_vol:{label:'售水量',unit:'m³',decimals:0},supply_vol:{label:'供水量',unit:'m³',decimals:0},registered_count:{label:'注册用户数',unit:'户',decimals:0},new_count:{label:'新增用户',unit:'户',decimals:0},loss_rate_pct:{label:'产销差率',unit:'%',decimals:2},charge_rate_pct:{label:'收费率',unit:'%',decimals:2},avg_price_yuan:{label:'售水均价',unit:'元/m³',decimals:3},plan_completion_pct:{label:'计划完成率',unit:'%',decimals:2},receivable_principal:{label:'应收本金',unit:'元',decimals:2},received_principal:{label:'实收本金',unit:'元',decimals:2},wholesale_vol:{label:'趸售水量',unit:'m³',decimals:0}}[name]||{label:name,unit:'',decimals:2});
  function axes(data,metric,horizontal=false){const m=E.metric(metric);const cat={type:'category',data:data.map(x=>x.name),axisLabel:{color:'#758697',fontSize:10,interval:0,rotate:data.length>8?24:0,width:100,overflow:'truncate'},axisTick:{show:false},axisLine:{lineStyle:{color:'#DCE6EE'}}};const val={type:'value',name:m.unit,nameTextStyle:{color:'#9AA9B7',fontSize:10},axisLabel:{color:'#8B9AA8',fontSize:10},splitLine:{lineStyle:{color:'#EDF2F6',type:'dashed'}}};return horizontal?{xAxis:val,yAxis:cat}:{xAxis:cat,yAxis:val};}

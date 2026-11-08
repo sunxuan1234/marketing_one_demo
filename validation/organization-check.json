@@ -1,0 +1,23 @@
+{
+  "result": "PASS",
+  "accounts": 2000,
+  "organizationNodes": 596,
+  "depths": {
+    "1": [
+      5
+    ],
+    "2": [
+      3
+    ],
+    "3": [
+      3
+    ],
+    "4": [
+      3
+    ]
+  },
+  "scopeIsolation": true,
+  "rollupReconciled": true,
+  "leafTermination": true,
+  "cacheIsolation": true
+}

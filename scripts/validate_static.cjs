@@ -19,7 +19,7 @@ assert(!read('assets/home.js').includes('esc(item.marker)'),'tooltip不应转义
 assert(!read('assets/app.js').includes('featureData('),'不得恢复通用功能假预览');
 const document={addEventListener(){},querySelector(){return null;},getElementById(){return null;}};
 const box={window:{},document,console,Intl,Map,Set,Date,URL,Blob,URLSearchParams};box.window=box;box.addEventListener=()=>{};
-vm.createContext(box);for(const f of ['catalog','data','engine','workflows'])vm.runInContext(read('assets/'+f+'.js'),box);
+vm.createContext(box);for(const f of ['catalog','data','organization','engine','workflows'])vm.runInContext(read('assets/'+f+'.js'),box);
 const {WB_DATA:D,WB:W,WB_CATALOG:C}=box,E=W.engine;
 assert.equal(C.modules.filter(m=>!m.hidden).length,13,'侧栏可见模块应为13个（首页已合并指标管控）');assert(!C.modules.some(m=>m.id==='kpi'),'指标管控菜单应已合并');assert(C.modules.some(m=>m.id==='drill'&&m.hidden),'缺少隐藏下钻路由');assert(C.modules[0].id==='home','首页应为第一个模块');assert.equal(C.reports.length,21,'报表应为21张');assert(C.reports.some(r=>r.id==='P-RPT-009'),'缺少抄见率报表');assert(C.modules.some(m=>m.id==='auth')&&C.modules.some(m=>m.id==='set'),'缺少用户管理/系统设置模块');assert.equal(C.functions.length,0,'业务UI不再展示通用148项假承接');
 assert.equal(D.isSourceFrozen,true);assert.equal(D.sourceWrite,false);assert.equal(D.collaborationEnabled,false);assert.equal(D.supplementEnabled,false);assert.equal(D.supplements.length,0);assert(D.dmaReadings.length>0,'DMA 逐时样例应有数据');assert(D.dmaNodes.length>0,'DMA 拓扑样例应有数据');assert.equal(D.forecasts.length,0,'预测结果仍为页面内演示计算，不落数据层');assert(D.readTasks.length>0,'抄表任务样例应有数据');

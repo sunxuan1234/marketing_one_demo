@@ -1,4 +1,10 @@
 /* V4 新增样式：用户管理与系统设置、风险提示 */
+.v4-context-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 14px;margin-bottom:14px;background:#f4f8fd;border:1px solid #d9e6f5;border-radius:10px;font-size:12px;color:#526b80}
+.v4-context-bar>div{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.v4-context-bar strong{color:#214c70}.v4-guide{line-height:1.8}.v4-guide dt{font-weight:600;color:#214c70}.v4-guide dd{margin:0 0 12px}
+.v4-context-bar button:focus-visible{outline:2px solid #317fc2;outline-offset:3px}
+.v4-org-nav{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:14px;margin-bottom:14px;background:#fff;border:1px solid #cbddea;border-radius:10px}.v4-org-nav label{display:flex;align-items:center;gap:10px;font-size:12px;color:#526b80}.v4-org-nav select{max-width:300px}.v4-org-path{display:flex;align-items:center;flex-wrap:wrap;gap:2px}.v4-org-path .btn{padding:4px 7px}.v4-org-nav>.muted{margin-left:auto;font-size:12px}
+@media(max-width:640px){.v4-org-nav label{width:100%;flex-wrap:wrap}.v4-org-nav select{width:100%;max-width:100%}.v4-org-nav>.muted{margin-left:0}}
+@media(max-width:640px){.v4-context-bar{align-items:flex-start;flex-direction:column}.v4-context-actions{width:100%;justify-content:space-between}}
 .v4-tip{display:flex;gap:10px;align-items:flex-start;margin:0 0 14px;padding:12px 14px;border-radius:10px;background:#f4f8fd;border:1px solid #d9e6f5}
 .v4-tip .muted{margin-top:4px;line-height:1.6}
 .v4-risk{position:relative;display:inline-flex;align-items:center;gap:4px;padding:1px 6px;border-radius:10px;background:#fff4e5;color:#a35a00;font-size:11px;cursor:help;border:1px solid #ffd9a6}
