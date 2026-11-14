@@ -1,0 +1,147 @@
+/* V3：离线合成样例。字段语义按原型/DDL核对；不代表生产供数、覆盖关系或模型运行。 */
+window.WB_DATA=(()=>{
+ const D={demo:true,asOf:'2026-10-31 08:30',timezone:'Asia/Shanghai',sourceWrite:false,mode:'READ_ONLY',supplementEnabled:false,collaborationEnabled:false};
+ D.companies=[
+  {id:1,name:'营业中心',full:'郑州水务集团营业中心',prefix:'ZZU01',org:'营业所',unitNodeId:'ORG-BIZ',units:['中原营业所','金水营业所','二七营业所','管城营业所','商鼎营业所'],regions:['410102','410103','410104','410105','410108']},
+  {id:2,name:'航空港区水务',full:'郑州航空港区水务有限公司',prefix:'ZZU03',org:'线路',unitNodeId:'ORG-PORT',units:['1001','1108','110'],regions:['410184','410122']},
+  {id:3,name:'高新供水',full:'郑州高新供水有限责任公司',prefix:'ZZU02',org:'网格',unitNodeId:'ORG-GX',units:['梧桐','沟赵南','石佛','枫杨','双桥'],regions:['410102','410182']},
+  {id:4,name:'东区水务',full:'郑州东区水务有限公司',prefix:'ZZU04',org:'网格',unitNodeId:'ORG-DQ',units:['一网格','二网格','三网格','四网格','五网格','六网格','七网格','八网格'],regions:['410105','410104','410122']}
+ ];
+ D.adminRegions=[['410102','中原区','main',113.61,34.75],['410103','二七区','main',113.64,34.72],['410104','管城回族区','main',113.68,34.75],['410105','金水区','main',113.66,34.8],['410106','上街区','wide',113.3,34.8],['410108','惠济区','main',113.62,34.87],['410122','中牟县','main',113.98,34.72],['410181','巩义市','wide',113.02,34.75],['410182','荥阳市','wide',113.38,34.79],['410183','新密市','wide',113.39,34.54],['410184','新郑市','main',113.74,34.4],['410185','登封市','wide',113.04,34.46]].map(([code,name,group,x,y])=>({code,name,group,center:[x,y],status:'sample'}));
+ D.functionalZones=[{code:'FZ_GAOXIN',name:'郑州高新区',short:'高新区',companyId:3,parents:['410102','410182']},{code:'FZ_DONGQU',name:'郑东新区',short:'郑东新区',companyId:4,parents:['410105','410104','410122']},{code:'FZ_HANGKONG',name:'郑州航空港区',short:'航空港区',companyId:2,parents:['410184','410122']},{code:'FZ_JINGKAI',name:'郑州经开区',short:'经开区',companyId:4,parents:['410104','410122']}];
+ D.natures=['居民阶梯','居民非阶梯','非居民','特行'];
+ D.industries=['居民','学校','医院','休闲娱乐业','绿化环卫','餐饮业','交通','汽车行业','商业','企业','生活类','建筑施工'];
+ D.calibers=['DN15','DN20','DN25','DN40','DN50','DN80','DN100','DN150','DN150以上'];D.meterTypes=['机械表','远传表'];
+ D.systemTypes=['营收','表务','报装','远传','手机抄表（云知水）','数据中台'];
+ D.periods=[];for(let y=2023;y<=2026;y++)for(let m=1;m<=(y===2026?10:12);m++)D.periods.push(`${y}-${String(m).padStart(2,'0')}`);
+ function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return(h>>>0)/4294967295;}
+ function shift(p,delta){let[y,m]=p.split('-').map(Number);m+=delta;y+=Math.floor((m-1)/12);m=((m-1)%12+12)%12+1;return`${y}-${String(m).padStart(2,'0')}`;}
+ D.hash=hash;D.shiftPeriod=shift;
+ const names=['张*明','王*静','李*磊','赵*敏','刘*强','陈*丽'];
+  // 账户落位到组织基线真实叶子节点：营业中心 199 线路×5=995，高新 5 网格×100=500，东区 8 网格×50=400，港区 3 线路×35=105。
+ D.userSlots=(()=>{const out=[];[[1,5],[2,35],[3,100],[4,50]].forEach(([uid,per])=>{
+   WBOrg.nodes.filter(n=>Number(n.unitId)===uid&&(n.type==='line'||n.type==='grid')).forEach(leaf=>{for(let k=0;k<per;k++)out.push({leaf,per,k});});
+ });return out;})();
+ const ZONE={1:null,2:'FZ_HANGKONG',3:'FZ_GAOXIN',4:'FZ_DONGQU'};
+ // 统一编码：ZZU + 2 位区域 + 10 位单位内流水 + 1 位 Luhn 校验 = 16 位。
+ // Luhn：从右往左第奇数位乘 2，结果 >9 减 9，其余相加；校验位 = (10 - sum%10) % 10。
+ function luhnCheck(base){
+   let sum=0;
+   for(let i=base.length-1,pos=1;i>=0;i-=1,pos+=1){
+     let d=base.charCodeAt(i)-48;
+     if(pos%2===1){d*=2;if(d>9)d-=9;}
+     sum+=d;
+   }
+   return (10-(sum%10))%10;
+ }
+ function canonicalCode(region,serial){
+   const base=String(region).padStart(2,'0')+String(serial).padStart(10,'0');
+   if(base.length!==12)throw new Error('统一编码基数必须为 12 位');
+   return 'ZZU'+base+luhnCheck(base);
+ }
+ D.canonicalCode=canonicalCode;D.luhnCheck=luhnCheck;
+
+ const unitCounters={};
+ D.users=Array.from({length:2000},(_,i)=>{const slot=D.userSlots[i],leaf=slot.leaf,unit=D.companies.find(c=>c.id===Number(leaf.unitId)),unitNode=WBOrg.get(unit.unitNodeId);
+   const adminCode=unit.regions[(slot.k+leaf.depth)%unit.regions.length],admin=D.adminRegions.find(r=>r.code===adminCode).name,nature=D.natures[i%4];
+   const regDate=i>=1980?`2026-${i>=1990?'10':'09'}-${i%2?'27':'15'}`:`${2022+i%4}-${String(i%9+1).padStart(2,'0')}-15`;
+   const deregisterDate=i===4?'2026-08-20':(i>0&&i%331===0?'2025-06-20':null);
+   const serial=unitCounters[unit.id]=(unitCounters[unit.id]||0)+1;
+   return{id:i+1,unified_code:canonicalCode(unit.prefix.slice(3),serial),card_no:unit.id===3?`GX-CARD-${860001+i}`:`CD-${unit.id}${910000+i}`,
+    customer_no:unit.id===3?`GX-CUST-${31000+Math.floor(i/8)}`:`CU-${unit.id}${730000+i}`,
+    name:nature==='非居民'?`示例企业${i+1}`:names[i%names.length],company:unit.name,companyId:unit.id,unitId:String(unit.id),
+    unitNodeId:unit.unitNodeId,orgNodeId:leaf.id,orgPath:leaf.pathIds.slice(),lineKey:leaf.lineKey,orgType:leaf.type,
+    adminCode,admin,functionalZones:ZONE[unit.id]?[ZONE[unit.id]]:[],org:leaf.org,team:leaf.team,line:leaf.line,
+    booklet:`${String(i%12+1).padStart(2,'0')}册本`,nature,industry:nature.startsWith('居民')?'居民':D.industries[1+i%(D.industries.length-1)],
+    phone:`138****${String(5621+i*31).slice(-4)}`,address:`${admin}示例路${18+i}号`,caliber:D.calibers[i%D.calibers.length],
+    meterType:i%3===0?'远传表':'机械表',meterId:`MTR-${unit.id}-${560000+i}`,previousMeterId:`MTR-${unit.id}-${460000+i}`,installDate:regDate,
+    regDate,deregisterDate,status:deregisterDate?'注销':'正常',payWay:['线上','代扣','现金'][i%3],level:i%5===0?'重点关注':'普通',
+    community:`示例小区${(i%60)+1}`,monthVol:0,yearVol:0,arrears:0,arrearsAmount:0};
+ });
+ D.userIndex=new Map(D.users.map(u=>[u.id,u]));
+ // 样例账户的月度记录与存量快照分开；新增按上月26日至本月25日统计。
+ const facts=[],readings=[],bills=[],readTasks=[];
+ const dayCache=new Map();
+ const plusDays=(date,n)=>{
+   const key=date+'|'+n;let v=dayCache.get(key);
+   if(v===undefined){v=new Date(Date.parse(date+'T00:00:00Z')+n*86400000).toISOString().slice(0,10);dayCache.set(key,v);}
+   return v;
+ };
+ // 维度对象按用户缓存一次；行构造只做一次合并，避免每行重复 fromEntries。
+ const dimCache=new Map();
+ const dims=u=>{
+   let d=dimCache.get(u.id);
+   if(!d){
+     d={company:u.company,companyId:u.companyId,unitId:u.unitId,unitNodeId:u.unitNodeId,orgNodeId:u.orgNodeId,orgType:u.orgType,lineKey:u.lineKey,admin:u.admin,adminCode:u.adminCode,org:u.org,team:u.team,line:u.line,booklet:u.booklet,nature:u.nature,industry:u.industry,caliber:u.caliber,meterType:u.meterType,functionalZones:u.functionalZones};
+     dimCache.set(u.id,d);
+   }
+   return d;
+ };
+ const prevPeriod=new Map(D.periods.map(p=>[p,shift(p,-12)]));
+ for(const u of D.users){let index=1000+u.id*100;const soldByPeriod=new Map();for(const period of D.periods){const[y,m]=period.split('-').map(Number),cutoff=`${period}-25`,prevCutoff=`${shift(period,-1)}-26`,end=`${period}-31`,exists=u.regDate<=end,active=exists&&(!u.deregisterDate||u.deregisterDate>end),newCount=u.regDate>=prevCutoff&&u.regDate<=cutoff?1:0,closedCount=u.deregisterDate?.startsWith(period)?1:0;const volume=active?Math.round((u.nature.startsWith('居民')?12+u.id%22:115+(u.id%40)*6)*(1+.12*Math.sin(m/12*Math.PI*2))*(.9+hash(u.id+'|'+period)*.2)):0;const price=u.nature==='特行'?6.2:u.nature==='非居民'?4.8:u.nature==='居民非阶梯'?4.4:3.1;const amount=+(volume*price).toFixed(2),payHash=hash(u.id+'|'+period+'_pay'),chronic=u.id%29===0&&period>='2023-06',unpaid=(period>='2026-08'&&u.id%9===0)||chronic||payHash<.08,paidLate=!unpaid&&payHash>.9,received=unpaid?0:amount,readingId=`READ-${u.id}-${period}`,date=u.regDate.startsWith(period)&&u.regDate>`${period}-20`?u.regDate:`${period}-20`,missed=active&&hash(u.id+'|'+period+'_miss')<.03;const prior=index;if(!missed)index+=volume;
+  if(exists&&active&&!missed){readings.push({...dims(u),id:readingId,userId:u.id,card:u.unified_code,period,date,lastDate:u.regDate.startsWith(period)?null:`${shift(period,-1)}-20`,lastReading:prior,reading:index,volume,billedVolume:volume,reader:`抄表员${u.companyId}`,method:u.meterType==='远传表'?'远传':'手机抄表',status:u.id%11===0?'估表':'正常',estimated:u.id%11===0,arrived:null,billed:true});bills.push({...dims(u),id:`BILL-${u.id}-${period}`,userId:u.id,card:u.unified_code,readId:readingId,period,billingMonth:period,volume,amount,received,arrears:amount-received,paidAt:unpaid?null:plusDays(date,paidLate?420:4),dueAt:plusDays(date,8),payWay:u.payWay,status:unpaid?'未缴':'已缴'});}
+  if(exists&&active){const mobile=u.meterType!=='远传表';const arrive=mobile?hash(u.id+'|'+period+'_arr')>.04:true;const gps=mobile?(arrive?Math.round(hash(u.id+'|'+period+'_gps')*40):80+Math.round(hash(u.id+'|'+period+'_gps')*420)):null;const photo=mobile?(arrive&&hash(u.id+'|'+period+'_photo')>.05):null;const ocr=mobile?(photo?0:(hash(u.id+'|'+period+'_ocr')>.5?1:0)):null;const pushed=u.meterType==='远传表'?hash(u.id+'|'+period+'_push')>.03:null;readTasks.push({...dims(u),id:`TASK-${u.id}-${period}`,userId:u.id,card:u.unified_code,period,dueDate:`${period}-25`,assignedReader:`抄表员${u.companyId}`,method:u.meterType==='远传表'?'远传':'手机抄表',status:missed?'未抄':(u.id%11===0?'估抄':'已抄'),readAt:missed?null:date,arrived:mobile?arrive:null,gpsDistanceMeters:gps,photoCompliant:photo,ocrDiff:ocr,remotePushed:pushed,estimated:u.id%11===0});}
+  facts.push({...dims(u),id:`F-${u.id}-${period}`,accountId:u.unified_code,seriesKey:String(u.id),period,naturalMonth:period,previous_sold:soldByPeriod.get(prevPeriod.get(period))??null,wholesale:false,sourceSystem:'营收',sold_vol:missed?0:volume,supply_vol:null,plan_vol:active?(u.nature.startsWith('居民')?12+u.id%22:115+(u.id%40)*6):0,receivable_principal:missed?0:amount,received_principal:missed?0:received,water_revenue:missed?0:amount,water_fee:missed?0:amount,sewage_fee:0,other_fee:0,registered_count:active?1:0,new_count:newCount,closed_count:closedCount,non_registered_count:null,read_total:active?1:0,arrival_total:active?1:0,arrived_count:active&&!missed&&(u.meterType!=='远传表'?true:false)?1:0,estimated_count:active&&u.id%11===0?1:0,remote_total:active&&u.meterType==='远传表'?1:0,remote_billed:active&&u.meterType==='远传表'?1:0,source_version:`DEMO-${period}`,source_batch:`DEMO-B-${period}`});soldByPeriod.set(period,missed?0:volume);
+ }}
+ D.facts=facts;
+ // P0 性能：按 period / 自然月 / 公司建事实索引桶，避免每次全表扫描 92k 行。
+ D.factIndex=(()=>{
+   const byPeriod=new Map(),byMonth=new Map();
+   const push=(map,key,row,company)=>{
+     let bucket=map.get(key);if(!bucket){bucket={all:[],byCompany:new Map()};map.set(key,bucket);}bucket.all.push(row);
+     let list=bucket.byCompany.get(company);if(!list){list=[];bucket.byCompany.set(company,list);}list.push(row);
+   };
+   for(const row of D.facts){push(byPeriod,row.period,row,row.company);push(byMonth,row.naturalMonth,row,row.company);}
+   return {byPeriod,byMonth,total:D.facts.length};
+ })();D.readings=readings;D.bills=bills;D.readTasks=readTasks;
+ const readings2026ByUser=new Map(),dueBillsByUser=new Map();
+ const readingsByUser=new Map();
+ for(const r of readings){let all=readingsByUser.get(r.userId);if(!all){all=[];readingsByUser.set(r.userId,all);}all.push(r);if(!r.period.startsWith('2026'))continue;const arr=readings2026ByUser.get(r.userId)||[];arr.push(r);readings2026ByUser.set(r.userId,arr);}
+ const billsByUser=new Map();
+ for(const b of bills){let all=billsByUser.get(b.userId);if(!all){all=[];billsByUser.set(b.userId,all);}all.push(b);if(!(b.arrears>0))continue;const arr=dueBillsByUser.get(b.userId)||[];arr.push(b);dueBillsByUser.set(b.userId,arr);}
+ for(const u of D.users){const rs=readings2026ByUser.get(u.id)||[];u.monthVol=rs.find(r=>r.period==='2026-10')?.volume||0;u.yearVol=rs.reduce((s,r)=>s+r.volume,0);const due=dueBillsByUser.get(u.id)||[];u.arrearsAmount=due.reduce((s,b)=>s+b.arrears,0);u.arrears=due.reduce((s,b)=>s+b.volume,0);}
+ D.remoteReadings=D.users.filter(u=>u.meterType==='远传表').flatMap(u=>Array.from({length:7},(_,i)=>({...dims(u),id:`REMOTE-${u.id}-${i}`,userId:u.id,card:u.unified_code,date:`2026-10-${25+i}`,totalFlux:6000+u.id*100+i*20,useFlux:20,pressure:null,lastCommunication:`2026-10-${25+i} 06:30`}))).filter(r=>r.date>=D.userIndex.get(r.userId).regDate);
+ D.adjustments=(()=>{const out=[];const types=['调整减免','价差退款','特殊开账','待处理账'];D.users.forEach((u,i)=>{if(i%3!==0)return;const count=1+(i%3);const own=billsByUser.get(u.id)||[];if(!own.length)return;for(let k=0;k<count;k++){const bill=own[(i*7+k*13)%own.length];const period=bill.period;const type=types[(i+k)%types.length];const amount=+(20+hash(u.id+'|'+period+'|adj'+k)*880).toFixed(2);out.push({...dims(u),id:`ADJ-${u.id}-${k+1}`,cust_id:u.unified_code,card:u.unified_code,bill_period:period,period,billId:bill.id,readId:bill.readId,proc_type:type,proc_amt:amount,initiator_name:`受理员${u.companyId}`,initiate_time:`${period}-${String(10+(i+k)%15).padStart(2,'0')} 09:30`,audit_status:['已审核','待审核'][(i+k)%2],reason:type==='调整减免'?'水量多计核减':type==='价差退款'?'水价调整价差退还':type==='特殊开账'?'补录历史漏抄账单':'待处理账挂账核实'});}});return out;})();D.natureChanges=[];D.bookletChanges=[];D.inventoryMovements=[];
+ D.warehouses=D.companies.map(c=>({id:`WH-${c.id}`,name:`${c.name}中心库`,company:c.name,companyId:c.id,unitId:String(c.id),unitNodeId:c.unitNodeId,orgNodeId:c.unitNodeId,ownershipLevel:'unit',type:'中心库'}));
+ D.meterInventory=[...D.users.map(u=>({...dims(u),id:u.meterId,userId:u.id,meterId:u.meterId,barcode:`BAR${String(100000000+u.id)}`,sealNumber:null,manufacturer:'示例厂家',model:u.meterType==='远传表'?'远传示例型':'机械示例型',warehouse:null,status:u.status==='注销'?'停用':'在用',ownershipLevel:'account',installDate:u.installDate})),...D.warehouses.flatMap(w=>Array.from({length:6},(_,i)=>({id:`STOCK-${w.id}-${i}`,meterId:`STOCK-${w.id}-${i}`,company:w.company,companyId:w.companyId,unitId:w.unitId,unitNodeId:w.unitNodeId,orgNodeId:w.unitNodeId,ownershipLevel:'unit',warehouse:w.name,barcode:`STOCKBAR${w.id}${i}`,caliber:D.calibers[i],meterType:i%2?'机械表':'远传表',manufacturer:'示例厂家',model:'库存示例型',status:['在库','周转','待检','报废','在库','在库'][i],installDate:null})))];
+ D.meterEvents=D.users.slice(0,240).map((u,i)=>({...dims(u),id:`ME-${44001+i}`,userId:u.id,card:u.unified_code,oldMeter:u.previousMeterId,newMeter:u.meterId,type:i%3===0?'故障换表':'周检换表',date:'2026-07-18',period:'2026-07',operator:`表务人员${u.companyId}`,before:(readingsByUser.get(u.id)||[]).filter(r=>r.period<'2026-07').slice(-4).map(r=>r.volume),after:(readingsByUser.get(u.id)||[]).filter(r=>r.period>'2026-07').slice(0,3).map(r=>r.volume),unit:'m³/周期',status:'已换表'}));
+ const types=[['连续3周期水量波动±30%','抄表异常'],['正常用水突变为0水量','抄表异常'],['周检到期未换表','表务异常'],['远传改手工','抄表异常'],['非手机抄表','抄表异常'],['手机拍照不符合','抄表异常'],['手机抄表与营收指数差异','抄表异常'],['连续零水量','抄表异常'],['无表立户','关联异常'],['有收费无抄表','关联异常'],['表档未同步','关联异常'],['户表号不匹配','关联异常'],['地址不符合规则','基础信息'],['条形码位数不正确','基础信息'],['手机号码位数不正确','基础信息'],['无证件号','基础信息'],['企业无组织机构代码','基础信息'],['发票邮箱不正确','基础信息'],['工单超时未办结','流程异常'],['流程节点滞留','流程异常']];
+ D.alerts=types.map(([type,category],i)=>{const u=D.users[i*3%D.users.length];return{...dims(u),id:`AL-${202610001+i}`,userId:u.id,card:u.unified_code,customer:u.name,type,category,severity:'待核查',description:type,date:'2026-10-25',period:'2026-10',status:'待核查',sourceSystem:category==='表务异常'?'表务':'营收',assignee:null,value:null,evidence:[],ruleVersion:null};});
+ D.projects=D.users.slice(0,80).map((u,i)=>{
+  const completed=i%4===3,registered=completed&&i%3!==0,meterInstalled=i%13!==0,remoteUploaded=u.meterType==='远传表'?(i%7!==0):null;
+  const nodeIndex=i%4,stage=['报装受理','工程施工','表务检定','待立户'][nodeIndex],plannedNodeDays=[7,30,7,5][nodeIndex];
+  const nodeDays=Math.round(3+hash('PRJ|'+i)*45),acceptedAt=`2026-${String(1+i%9).padStart(2,'0')}-${String(3+i%25).padStart(2,'0')}`,stageAt=`2026-${String(2+i%9).padStart(2,'0')}-${String(5+(i*7)%22).padStart(2,'0')}`;
+  return {...dims(u),id:`PRJ-${20260081+i}`,userId:u.id,name:`示例报装工程${i+1}`,stage,completed,registered,card:registered?u.unified_code:null,
+   meterId:meterInstalled?u.meterId:null,barcode:meterInstalled?`BAR${100000000+u.id}`:null,caliber:u.caliber,meterType:u.meterType,manufacturer:'示例厂家',model:'示例型',
+   constructionUnit:'示例施工单位',address:u.address,remoteVol:remoteUploaded?+(12.6+i*0.7).toFixed(1):0,remoteUploaded,
+   warehouse:i%2?'中心库':'清源仓库',acceptedAt,stageAt,plannedNodeDays,nodeDays,overdue:nodeDays>plannedNodeDays,
+   installed:meterInstalled,approvalStatus:completed?'已完工':(i%5?'审批通过':'审核中'),
+   timeline:[{time:acceptedAt,event:'报装受理'},{time:stageAt,event:stage}],attachments:[]};
+ });
+ D.sourceOrders=D.users.slice(0,80).map((u,i)=>({...dims(u),id:`SRC-WO-${82001+i}`,userId:u.id,type:['收费核查','换表施工','报装勘察'][i%3],status:['待接收','处理中','已处理'][i%3],owner:`源责任人${i+1}`,sourceReadonly:true,createdAt:'2026-10-20 08:30',sentAt:'2026-10-20 09:00',receivedAt:i%3?'2026-10-20 10:00':null,processedAt:i%3===2?'2026-10-22 14:00':null,limitAt:null,events:[]}));
+ D.batches=D.companies.flatMap(c=>D.systemTypes.map((system,i)=>({id:`B-${c.id}-${i+1}`,company:c.name,companyId:c.id,unitId:String(c.id),unitNodeId:c.unitNodeId,orgNodeId:c.unitNodeId,ownershipLevel:'unit',system,time:'2026-10-31 06:30',period:'2026-10',records:system==='营收'?D.bills.filter(b=>b.company===c.name&&b.period==='2026-10').length:system==='表务'?D.meterInventory.filter(m=>m.company===c.name).length:null,delay:null,status:'样例快照',version:'DEMO-202610',qualityPassed:null,newBatch:false})));
+ // 计量拓扑不能由行政区或售水量推算。接口尚无已核对映射，保留需求入口与缺数态。
+ D.dmaNodes=[];D.dmaReadings=[];D.forecasts=[];D.forecastFactors=[];
+ D.staff=[];D.workOrders=[];D.autoRules=[];D.supplements=[];D.supplementTypes={};
+ D.reportRuns=WB_CATALOG.reports.map(r=>{const wait=(WB_CATALOG.reportAvailability&&WB_CATALOG.reportAvailability.waiting)||{};return {...r,status:wait[r.id]?'待数据':'样例预览',waitReason:wait[r.id]||null,ownerNode:'ORG-GROUP',ownershipLevel:'config',orgNodeId:'ORG-GROUP',last:null,runs:null,success:null,avgMinutes:null};});D.catalog=WB_CATALOG;
+ // 异常规则清单（预设样例；“自主增减”在智能分析页内存演示，不落盘）
+ D.alertRules=[
+  {id:'R-001',name:'连续3期水量波动超阈值',type:'连续3周期水量波动±30%',category:'抄表异常',level:'高',threshold:30,unit:'%',condition:'连续 3 个抄表周期水量较前 3 期均值波动超过阈值',enabled:true,source:'预设'},
+  {id:'R-002',name:'正常用水突变为零',type:'正常用水突变为0水量',category:'抄表异常',level:'高',threshold:1,unit:'期',condition:'连续 1 个周期水量为 0 且此前存在正常用水',enabled:true,source:'预设'},
+  {id:'R-003',name:'周检到期未换表',type:'周检到期未换表',category:'表务异常',level:'中',threshold:30,unit:'天',condition:'水表检定到期后超过阈值天数仍未换表',enabled:true,source:'预设'},
+  {id:'R-004',name:'远传表改手工抄表',type:'远传改手工',category:'抄表异常',level:'中',threshold:2,unit:'期',condition:'远传水表连续改为人工/手机抄表超过阈值期数',enabled:true,source:'预设'},
+  {id:'R-005',name:'手机拍照不合规',type:'手机拍照不符合',category:'抄表异常',level:'中',threshold:100,unit:'%',condition:'拍照合规率低于阈值（100% 表示不容忍不合规）',enabled:true,source:'预设'},
+  {id:'R-006',name:'手机与营收指数不一致',type:'手机抄表与营收指数差异',category:'抄表异常',level:'高',threshold:1,unit:'档',condition:'手机识别指数与营收开账指数差异超过阈值',enabled:true,source:'预设'},
+  {id:'R-007',name:'连续零水量',type:'连续零水量',category:'抄表异常',level:'中',threshold:3,unit:'期',condition:'连续阈値期数水量为 0',enabled:true,source:'预设'},
+  {id:'R-008',name:'无表立户',type:'无表立户',category:'关联异常',level:'高',threshold:1,unit:'户',condition:'已立户但无对应水表档案',enabled:true,source:'预设'},
+  {id:'R-009',name:'有收费无抄表',type:'有收费无抄表',category:'关联异常',level:'中',threshold:1,unit:'笔',condition:'存在收费记录但无对应抄表记录',enabled:true,source:'预设'},
+  {id:'R-010',name:'工单超时未办结',type:'工单超时未办结',category:'流程异常',level:'中',threshold:30,unit:'天',condition:'源工单超过阈值天数仍未办结',enabled:true,source:'预设'}
+ ];
+ // 规则配置属于集团级目录配置：归属集团根节点，单位/个人身份不可派生其范围。
+ D.alertRules=D.alertRules.map(r=>({...r,orgNodeId:'ORG-GROUP',ownershipLevel:'config'}));
+ // DMA 样例：拓扑、逐时流量、压力与供需平衡（分区区域图与真实映射仍待甲方提供）
+ D.dmaNodes=(()=>{const out=[];D.companies.forEach((c,ci)=>{['分区一','分区二','分区三'].forEach((name,k)=>{out.push({id:`DMA-${c.id}-${k+1}`,device_code:`DMA-${c.id}${k+1}`,node_name:`${c.name}${name}`,parent_node_id:k===0?null:`DMA-${c.id}1`,node_kind:k===0?'分级分区':'子分区',company:c.name,companyId:c.id,unitId:String(c.id),unitNodeId:c.unitNodeId,orgNodeId:c.unitNodeId,ownershipLevel:'unit',caliber:D.calibers[(ci+k)%D.calibers.length],comm_mode:k%2?'NB-IoT':'GPRS',run_status:'运行'});});});return out;})();
+ D.dmaReadings=(()=>{const out=[];D.dmaNodes.forEach((node,ni)=>{for(let day=0;day<7;day++){for(let h=0;h<24;h++){const ts=`2026-10-${String(25+day).padStart(2,'0')} ${String(h).padStart(2,'0')}:00`;const base=node.node_kind==='分级分区'?18:6;const raw=base*(0.6+hash(node.id+'|'+day+'|'+h)*0.8);const flow=+(h>=1&&h<=4?raw*0.55:raw).toFixed(2);const pressure=+(0.24+hash(node.id+'|'+day+'|'+h+'p')*0.08).toFixed(3);out.push({id:`DMA-R-${ni}-${day}-${h}`,device_code:node.device_code,node_id:node.id,company:node.company,unitId:node.unitId,unitNodeId:node.unitNodeId,orgNodeId:node.unitNodeId,ownershipLevel:'unit',ts,period:`2026-10-${String(25+day).padStart(2,'0')}`,hour:h,inst_flow:flow,cum_flow:Math.round(1000+flow*h),pressure_mpa:pressure,comm_status:hash(node.id+'|'+day+'|'+h+'c')>0.02?'正常':'中断'});}}});return out;})();
+ D.dmaBalance=(()=>{const out=[];D.dmaNodes.forEach(node=>{for(let m=5;m>=1;m--){const period=shift('2026-10',-m);const supply=Math.round(9000+hash(node.id+'|'+m)*8000);const lossRate=0.08+hash(node.id+'|'+m+'l')*0.10;out.push({id:`DMA-B-${node.id}-${period}`,node_id:node.id,node_name:node.node_name,company:node.company,unitId:node.unitId,unitNodeId:node.unitNodeId,orgNodeId:node.unitNodeId,ownershipLevel:'unit',period,supply_vol:supply,sold_vol:Math.round(supply*(1-lossRate)),loss_rate_pct:+(lossRate*100).toFixed(2)});}});return out;})();
+ const freezeTree=v=>{if(v&&typeof v==='object'&&!Object.isFrozen(v)){if(Array.isArray(v)){for(let i=0;i<v.length;i++)freezeTree(v[i]);}else for(const k in v)freezeTree(v[k]);Object.freeze(v);}return v;};Object.keys(D).filter(k=>Array.isArray(D[k])).forEach(k=>freezeTree(D[k]));D.isSourceFrozen=Object.isFrozen(D.facts)&&D.facts.every(Object.isFrozen);return D;
+})();
