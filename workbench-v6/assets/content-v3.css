@@ -1,0 +1,9 @@
+/* V3仅修正内容精简后的布局；品牌、卡片、控件继续使用V2令牌。 */
+#globalFilters:empty{display:none}
+.v2-product .filter-grid.user-query-grid{grid-template-columns:repeat(4,minmax(0,1fr));align-items:end}
+.user-query-grid>*{min-width:0}
+.user-query-grid .check-field{display:flex;align-items:center;gap:7px;min-height:38px;font-size:12px}
+.user-query-grid .filter-actions{justify-content:flex-end;flex-wrap:wrap}
+@media(max-width:1280px){.v2-product .filter-grid.user-query-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:960px){.v2-product .filter-grid.user-query-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){.v2-product .filter-grid.user-query-grid{grid-template-columns:minmax(0,1fr)}}

@@ -1,0 +1,167 @@
+/* V5 身份与范围界面：范围摘要条、账号面板、拒绝/空绑定态。只补 v4 未覆盖的控件。 */
+
+/* —— 1b. 预警角标：0 与未加载 —— */
+.top-action .alert-dot.is-zero { color: #4C6478; background: #E4EBF1; }
+.top-action .alert-dot.is-pending { color: #5B7488; background: #EFF3F7; font-weight: 600; }
+
+/* —— 1. 我的责任范围摘要条 —— */
+.scope-summary { margin: 0 0 14px; }
+.scope-summary-inner { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; min-height: 46px; padding: 9px 14px; border: 1px solid #DCE7F0; border-left: 3px solid var(--brand); border-radius: 10px; background: linear-gradient(100deg, #F5FAFD, #FBFDFE); }
+.scope-summary-label { display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto; color: #3D5A70; font-size: 12px; font-weight: 600; }
+.scope-summary-label .icon { width: 15px; height: 15px; color: var(--brand); }
+.scope-summary-value { min-width: 0; color: #1F3A4F; font-size: 13px; font-weight: 600; }
+.scope-summary-basis { padding: 2px 7px; color: #5B7488; border: 1px solid #E0EAF2; border-radius: 5px; background: #fff; font-size: 10px; font-variant-numeric: tabular-nums; }
+.scope-summary-note { margin-left: auto; color: #7C8F9E; font-size: 11px; }
+.scope-summary.is-unbound .scope-summary-inner { border-left-color: var(--orange, #D98324); background: linear-gradient(100deg, #FFF9F1, #FFFDFA); }
+.scope-summary.is-unbound .scope-summary-label .icon { color: var(--orange, #D98324); }
+
+/* —— 2. 账号与演示身份面板 —— */
+.role-popover#accountPanel { display: flex; flex-direction: column; width: min(420px, calc(100% - 16px)); max-width: calc(100% - 16px); max-height: calc(100dvh - 84px); padding: 0; overflow: hidden; box-sizing: border-box; }
+.account-scroll { min-height: 0; padding: 9px; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+.account-summary { position: relative; margin-bottom: 7px; }
+.account-summary-range { margin-top: 4px; color: #6F8496; font-size: 10px; font-variant-numeric: tabular-nums; }
+.account-summary > .badge { position: absolute; top: 10px; right: 10px; }
+.persona-basis-line { margin: 0 4px 9px; padding: 6px 8px; color: #6C8194; border: 1px dashed #DFE9F1; border-radius: 6px; background: #FAFCFE; font-size: 10px; line-height: 1.55; }
+
+.role-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.persona-picker { display: flex; flex-direction: column; gap: 4px; padding: 2px 0 6px; }
+.persona-group { border-radius: 8px; }
+.persona-group + .persona-group { border-top: 1px solid #EFF3F7; }
+.persona-group-head { display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-radius: 7px; cursor: pointer; list-style: none; }
+.persona-group-head::-webkit-details-marker { display: none; }
+.persona-group-head:hover { background: #F5F9FC; }
+.persona-group-title { color: #40596C; font-size: 11px; font-weight: 600; }
+.persona-group-meta { color: #8698A7; font-size: 10px; font-variant-numeric: tabular-nums; }
+.persona-group-head .icon { width: 14px; height: 14px; margin-left: auto; color: #9AAAB8; transition: transform .16s var(--ease, ease); }
+.persona-group[open] > .persona-group-head .icon { transform: rotate(180deg); }
+.persona-group-body { padding: 1px 2px 5px; display: flex; flex-direction: column; gap: 2px; }
+
+.persona-option { min-height: 50px; align-items: flex-start; }
+.persona-option .role-option-copy { min-width: 0; }
+.persona-option .role-option-title { display: flex; align-items: center; gap: 6px; }
+.persona-option .role-option-desc { line-height: 1.5; }
+.persona-basis { flex: 0 0 auto; width: 18px; height: 18px; display: inline-grid; place-items: center; margin-top: 1px; border-radius: 4px; font-size: 9px; font-weight: 700; line-height: 1; }
+.persona-basis.is-c { color: #1F6BA8; background: #E7F2FB; }
+.persona-basis.is-e { color: #91591B; background: #FDF1E2; }
+.persona-basis.is-p { color: #6E7E8C; background: #EFF2F5; }
+.role-option[aria-checked="true"] .persona-basis.is-e { color: #fff; background: #C1741F; }
+.role-option[aria-checked="true"] .persona-basis.is-c { color: #fff; background: var(--brand); }
+
+.persona-binding { margin: 6px 4px 4px; padding: 9px 10px; border: 1px solid #E4EDF4; border-radius: 8px; background: #FBFDFE; }
+.persona-binding-title { margin-bottom: 7px; color: #40596C; font-size: 11px; font-weight: 600; }
+.persona-binding-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.binding-option { min-height: 32px; padding: 6px 9px; color: #4C6478; text-align: left; border: 1px solid #DCE7F0; border-radius: 7px; background: #fff; font-size: 11px; }
+.binding-option:hover { border-color: #A9C6DE; background: #F5FAFE; }
+.binding-option[aria-checked="true"] { color: var(--brand-strong, #276FAF); border-color: var(--brand); background: var(--brand-soft, #EAF3FB); box-shadow: inset 0 0 0 1px rgba(49,127,194,.35); font-weight: 600; }
+.persona-binding-note { margin: 8px 0 0; color: #7E8F9C; font-size: 10px; line-height: 1.5; }
+
+.demo-capability { margin: 6px 4px 4px; padding: 9px 10px; border: 1px solid #F0E2CF; border-radius: 8px; background: #FFFBF5; }
+.demo-capability-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 7px; }
+.demo-capability-title { color: #6A4A28; font-size: 11px; font-weight: 600; }
+.demo-flag { padding: 2px 7px; color: #fff; border-radius: 4px; background: #C1741F; font-size: 9px; letter-spacing: .2px; }
+.demo-capability-toggle { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px; padding-top: 8px; border-top: 1px dashed #EFE0CC; }
+.demo-capability-toggle strong { display: block; color: #6A4A28; font-size: 11px; }
+.demo-capability-toggle .muted { display: block; margin-top: 2px; color: #94826E; font-size: 10px; }
+.demo-capability-note { margin: 8px 0 0; color: #8B7A66; font-size: 10px; line-height: 1.55; }
+.capability-list { margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; list-style: none; }
+.capability-list li { display: flex; align-items: baseline; gap: 7px; color: #53697B; font-size: 10px; }
+.capability-list code { flex: 0 0 auto; padding: 1px 4px; color: #6C8194; border-radius: 3px; background: #EFF4F8; font: 9px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
+.capability-empty { color: #94A3AF; font-size: 10px; }
+
+.switch { position: relative; flex: 0 0 36px; width: 36px; height: 20px; padding: 0; border: 1px solid #D5DFE8; border-radius: 999px; background: #E8EDF2; transition: background .16s, border-color .16s; }
+.switch .icon { display: none; }
+.switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(20,50,75,.25); transition: transform .16s var(--ease, ease); }
+.switch[aria-checked="true"] { border-color: #C1741F; background: #C1741F; }
+.switch[aria-checked="true"]::after { transform: translateX(16px); }
+.switch[aria-checked="true"] .icon { display: none; }
+.switch:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+.role-boundary strong { display: block; margin-bottom: 3px; color: #50677A; font-size: 10px; }
+.role-boundary div + div { margin-top: 3px; }
+
+/* —— 3. 越界/空绑定拒绝态 —— */
+.access-state { max-width: 680px; margin: 26px auto 40px; padding: 26px 26px 22px; border: 1px solid #E7D9C6; border-radius: 14px; background: #FFFDFA; box-shadow: var(--shadow, 0 3px 14px rgba(28,68,102,.055)); }
+.access-state-icon { width: 44px; height: 44px; display: grid; place-items: center; margin-bottom: 14px; color: #A8661F; border-radius: 12px; background: #FBF0DF; }
+.access-state-icon .icon { width: 22px; height: 22px; }
+.access-state-title { margin: 0 0 8px; color: #3A2B18; font-size: 18px; font-weight: 650; line-height: 1.4; }
+.access-state-desc { margin: 0 0 10px; color: #6B5B48; font-size: 12px; line-height: 1.7; }
+.access-state-desc code { padding: 1px 5px; color: #8E4F12; border-radius: 4px; background: #F7EBDC; font: 11px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; word-break: break-all; }
+.access-state-scope { margin: 0 0 12px; color: #3F5568; font-size: 13px; font-weight: 600; }
+.access-state-meta { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 18px; margin: 0 0 16px; padding: 12px 14px; border: 1px solid #EFE6D9; border-radius: 9px; background: #fff; }
+.access-state-meta div { min-width: 0; }
+.access-state-meta dt { color: #8B7B67; font-size: 10px; }
+.access-state-meta dd { margin: 2px 0 0; overflow: hidden; color: #33475A; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.access-state-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.access-state-note { margin: 14px 0 0; padding-top: 10px; color: #8A7A66; border-top: 1px dashed #EFE1CE; font-size: 10px; line-height: 1.6; }
+.access-state.is-unbound { border-color: #DFE7EE; background: #FBFCFD; }
+.access-state.is-unbound .access-state-icon { color: #5B7488; background: #EFF4F8; }
+.access-state.is-unbound .access-state-title { color: #2E4354; }
+
+/* 查询面板副标题（product.css 只覆盖 p 标签） */
+.query-panel-sub { display: block; margin-top: 2px; color: var(--muted); font-size: 11px; }
+.query-panel .query-panel-head { flex-wrap: wrap; }
+
+/* —— 4. 顶栏身份两行与 375 适配 —— */
+.user-action .user-copy { min-width: 0; display: flex; flex-direction: column; gap: 1px; text-align: left; }
+.user-action .user-name, .user-action .user-role { max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.user-action .user-role { color: rgba(255,255,255,.68); }
+
+@media (max-width: 960px) {
+  .scope-summary-note { display: none; }
+  .access-state-meta { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 640px) {
+  body.v2-product { overflow-x: hidden; }
+  .scope-summary { margin-bottom: 10px; }
+  .scope-summary-inner { gap: 6px; padding: 8px 10px; min-height: 40px; }
+  .scope-summary-value { font-size: 12px; }
+  .scope-summary-basis { display: none; }
+  .access-state { margin: 12px 0 24px; padding: 18px 15px 16px; }
+  .access-state-title { font-size: 16px; }
+  .persona-binding-options { grid-template-columns: minmax(0, 1fr); }
+  .role-popover#accountPanel { width: auto; max-width: calc(100% - 16px); max-height: calc(100dvh - 84px); }
+}
+
+@media (max-width: 480px) {
+  .topbar-context, .topbar-freshness, .top-search span, .top-search kbd, .brand-sub { display: none; }
+  .user-action { max-width: 46px; padding-left: 6px; }
+  .user-action .user-copy { display: none; }
+  .user-action > .icon { display: none; }
+  .top-search { width: 38px; padding: 0; justify-content: center; }
+  .access-state-meta { padding: 10px 11px; }
+}
+
+/* —— 5. 下钻页窄屏：控件折行/堆叠，图表单列（不隐藏控件、不裁切内容） —— */
+@media (max-width: 960px) {
+  .drill-page .drill-dim-grid,
+  .drill-page .wb-kpi-chart-grid,
+  .drill-page .chart-grid { grid-template-columns: minmax(0, 1fr); }
+  .drill-page .chart-card .chart { height: 260px; min-height: 260px; }
+}
+
+@media (max-width: 640px) {
+  .drill-page .drill-toolbar { flex-wrap: wrap; row-gap: 6px; }
+  .drill-page .drill-toolbar .drill-path { order: 1; width: 100%; }
+  .drill-page .drill-toolbar .drill-note { order: 3; margin-left: 0; }
+  .drill-page .card-head,
+  .drill-page .card-head-actions { flex-wrap: wrap; gap: 6px; }
+  .drill-page .card-head-actions { width: auto; max-width: 100%; justify-content: flex-start; }
+  .drill-page .wb-analysis-nav { width: 100%; flex-wrap: wrap; overflow: visible; margin-bottom: 8px; }
+  .drill-page .wb-analysis-nav button { min-height: 30px; padding: 4px 9px; }
+  .drill-page .analysis-controls { gap: 6px; }
+  .drill-page .analysis-controls .segmented { min-width: 0; flex: 1 1 auto; flex-wrap: wrap; overflow: visible; }
+  .drill-page .analysis-controls .segmented button { flex: 0 1 auto; }
+  .drill-page .analysis-controls .ac-label,
+  .drill-page .analysis-controls .ac-note { flex: 0 0 auto; }
+  .drill-page .analysis-controls .ac-note { width: 100%; }
+  .drill-page .chart-toolbar { flex-direction: column; align-items: stretch; gap: 6px; }
+  .drill-page .chart-filter-group { width: 100%; min-width: 0; flex-wrap: wrap; }
+  .drill-page .chart-toolbar label { flex: 1 1 100%; min-width: 0; }
+  .drill-page .chart-toolbar label .control,
+  .drill-page .chart-toolbar .control { width: 100%; min-width: 0; max-width: 100%; }
+  .drill-page .chart-toolbar-actions { align-self: stretch; flex-wrap: wrap; justify-content: flex-start; }
+  .drill-page .analysis-compare .ac-head { flex-wrap: wrap; gap: 4px; }
+  .drill-page .drill-children { flex-wrap: wrap; }
+  .drill-page .tabs { flex-wrap: wrap; overflow: visible; }
+}
